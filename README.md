@@ -12,6 +12,10 @@ A Claude Code skill that turns your lecture slides, homework, and notes into a p
 - **Color-coded sections**: each chapter gets its own color; examples and answers in different colors
 - **Compression strategies**: 12-step playbook when content won't fit
 
+## Example
+
+<img width="2559" height="1536" alt="image" src="https://github.com/user-attachments/assets/673766bb-43bd-4128-9b87-f60994b98376" />
+
 ## Installation
 
 ```bash
