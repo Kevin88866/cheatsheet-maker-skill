@@ -17,6 +17,8 @@ A Claude Code skill that turns your lecture slides, homework, and notes into a p
 ## Example
 
 <img width="2559" height="1536" alt="image" src="https://github.com/user-attachments/assets/673766bb-43bd-4128-9b87-f60994b98376" />
+<img width="2559" height="1599" alt="image" src="https://github.com/user-attachments/assets/12e2305d-c308-4613-9cde-c344d40f3e08" />
+<img width="2559" height="1599" alt="image" src="https://github.com/user-attachments/assets/bf4d98b6-dc9b-48a2-a771-9abc796e200c" />
 
 ## Installation
 
