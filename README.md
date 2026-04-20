@@ -10,7 +10,9 @@ A Claude Code skill that turns your lecture slides, homework, and notes into a p
 - **Math formulas**: Word-native OMML format (selectable, editable, prints sharp)
 - **Concept comparison tables**: automatically suggests tables for easily-confused concepts
 - **Color-coded sections**: each chapter gets its own color; examples and answers in different colors
-- **Compression strategies**: 12-step playbook when content won't fit
+- **Diagrams and images**: crops diagrams from lecture slides (PDF < 25 MB), draws box diagrams with docx tables, or falls back to ASCII-art
+- **PDF size-aware**: automatically switches to text-only extraction for large PDFs (≥ 25 MB) to avoid memory issues
+- **Compression strategies**: step-by-step playbook when content won't fit
 
 ## Example
 
@@ -19,7 +21,7 @@ A Claude Code skill that turns your lecture slides, homework, and notes into a p
 ## Installation
 
 ```bash
-git clone https://github.com/your-username/cheatsheet-maker.git "%USERPROFILE%\.claude\skills\cheatsheet-maker"
+git clone https://github.com/Kevin88866/cheatsheet-maker-skill.git "%USERPROFILE%\.claude\skills\cheatsheet-maker"
 ```
 
 Restart Claude Code if this is your first time adding a skill. Otherwise it hot-reloads automatically.
@@ -45,7 +47,7 @@ cheatsheet-maker/
     ├── layout-spec.md                # A4 3-column docx-js code template
     ├── formula-handling.md           # Word math formula insertion (OMML + Unicode)
     ├── comparison-tables.md          # Concept comparison table templates
-    ├── compression-tactics.md        # 12 strategies when content won't fit
+    ├── compression-tactics.md        # Strategies when content won't fit
     └── extraction-prompts.md         # How to extract key points from PPTs/homework
 ```
 
@@ -61,8 +63,18 @@ cheatsheet-maker/
 | English font | Calibri 6.5pt |
 | Default page count | 2 pages (double-sided) |
 
+## Diagram support
+
+| Mode | Trigger | Diagram behavior |
+|------|---------|-----------------|
+| Screenshot enabled | Total PDF size < 25 MB | Crop diagrams from slides with pymupdf + Pillow |
+| Screenshot disabled | Total PDF size ≥ 25 MB | Replace diagrams with concise text descriptions |
+| Self-drawn | No source image | Draw with docx tables (colored cells + arrow chars) or ASCII-art |
+
 ## Requirements
 
 - Claude Code with `docx` npm package (`npm install -g docx`)
+- `pymupdf` (`pip install pymupdf`) — PDF text extraction and slide cropping
+- `Pillow` (`pip install Pillow`) — image cropping
 - LibreOffice (for PDF preview)
 - `pandoc` (for reading existing documents)

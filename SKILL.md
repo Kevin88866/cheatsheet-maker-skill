@@ -34,8 +34,8 @@ Ask the user these key questions (unless already answered):
    - Focus on formula derivations or concept memorization?
    - Include example problems?
 5. **Paper strategy**: **Default target = 2 pages (double-sided A4 landscape, 3 columns).** Adaptive content strategy:
-   - **Under 2 pages**: add more detail — explain *what* each concept/function does, add sub-lines with `p()` for intuition, edge cases, examples
-   - **Over 2 pages**: compress — cut explanatory sub-lines, merge related points, reduce to formula-only style
+   - **Under 2 pages**: aggressively expand — add explanatory sub-lines for every concept, include intuition ("why does this work?"), edge cases, worked mini-examples, comparison of similar concepts, common exam pitfalls. Keep adding until the content fills the target page count. An under-filled cheatsheet wastes exam-allowed space.
+   - **Over 2 pages**: compress — cut explanatory sub-lines, merge related points, reduce to formula-only style. **NEVER exceed the target page count.** Generate, estimate page count, and iterate compression until the content fits.
    - Only override the 2-page default if user explicitly specifies a different page count
 
 ### Step 2: Extract and organize content
@@ -44,8 +44,13 @@ If the user uploaded PPTs / homework / notes:
 
 1. **Read the materials**:
    - PPT → use pptx-related tools to extract text
-   - PDF → use pdf-reading tools
    - DOCX → `extract-text` command
+   - **PDF → size-check first (see below)**
+
+   **PDF size check protocol** (run before reading any PDF):
+   - Sum the file sizes of all PDFs the user has provided
+   - **If total < 25 MB**: read PDFs directly with pdf-reading tools. Screenshot/image cropping in Step 4 is **enabled** — crop diagrams from slides as usual.
+   - **If total ≥ 25 MB**: convert each PDF to plain text first (e.g., `pdftotext`, `pymupdf` text extraction, or `pandoc`), then read the resulting `.txt` files. Screenshot/image cropping in Step 4 is **disabled** — replace all diagram slots with concise **text descriptions** of the visual (e.g., "State diagram: READY→RUNNING on dispatch, RUNNING→BLOCKED on I/O wait, RUNNING→READY on preempt"). Never attempt to extract images from the PDF in this mode.
 2. **Extraction strategy** (based on proven exam-prep principles):
    - **Example problems**: Integrate sample exam questions and homework solution skeletons (instructors often test homework variants)
    - **PPT key concepts**: List key definitions, formulas, theorems; turn easily-confused concepts into comparison tables
@@ -74,7 +79,51 @@ Key points at a glance:
 - Example problems vs answers: different colors
 - Tables: minimum width/height, zero cell padding
 
-### Step 4: Math formula handling
+### Step 4: Add diagrams and images
+
+Diagrams are often the most space-efficient way to convey structural or procedural concepts. Add them wherever a picture saves more words than it costs space.
+
+**When to add a diagram**:
+- State machines / flow diagrams (e.g., process state transitions)
+- Memory layout / data structure diagrams (e.g., stack frame, page table, inode)
+- Algorithm step-by-step traces (e.g., page replacement, disk scheduling)
+- Architectural overviews (e.g., OS layers, TLB lookup flow)
+- Any concept where the spatial relationship matters
+
+**Sources for images** (only when screenshot mode is enabled — total PDF size < 25 MB; see Step 2):
+1. **Crop from lecture slides**: Extract a specific page from the PDF as an image, then crop to the relevant diagram. Use `pymupdf` (fitz) or `pdf2image`:
+   ```python
+   import fitz  # pymupdf
+   doc = fitz.open("lecture.pdf")
+   page = doc[page_num]
+   mat = fitz.Matrix(2, 2)  # 2x zoom for clarity
+   pix = page.get_pixmap(matrix=mat)
+   pix.save("diagram.png")
+   ```
+   Then crop with Pillow: `img.crop((x1,y1,x2,y2)).save("cropped.png")`
+2. **Draw using docx tables**: For simple box diagrams (memory layouts, state machines), use a borderless or lightly-bordered table with colored cell shading to represent boxes/nodes. This is vector-based and scales well.
+3. **ASCII-art in monospace**: For flow arrows and simple hierarchies, use a `Courier New` paragraph block.
+
+**Embedding images in docx-js**:
+```javascript
+const { ImageRun } = require('docx');
+const imgData = fs.readFileSync('diagram.png');
+new Paragraph({
+  children: [new ImageRun({
+    data: imgData,
+    transformation: { width: 150, height: 80 },  // in points; tune to fit column
+    type: 'png'
+  })]
+})
+```
+Keep images narrow (≤ column width ≈ 150–170pt for 3-column A4 landscape) and use tight wrapping. Prefer width-constrained images over tall ones to save vertical space.
+
+**Self-drawn table diagrams** (when no slide image available):
+- Use colored `TableCell` with `ShadingType.SOLID` to draw boxes
+- Use arrow characters (→ ↔ ↑ ↓) in adjacent cells for flow
+- Example: memory layout = vertical table with colored rows for Text/Data/Heap/Stack
+
+### Step 5: Math formula handling
 
 Read `references/formula-handling.md` for formula insertion details.
 
