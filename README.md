@@ -7,6 +7,7 @@ A Claude Code skill that turns your lecture slides, homework, and notes into a p
 - **Default output**: 2-page double-sided A4 landscape Word (.docx), 3 columns, 0.5cm margins
 - **Auto-extracts** key points from uploaded PPTs, PDFs, and notes
 - **Adaptive density**: fills space intelligently — adds explanations when under 2 pages, compresses to formula-only when over
+- **Mandatory page-fill enforcement**: before delivery, estimates page count and **expands content** (adds intuition, edge cases, mini-examples, exam pitfalls) until the target is reached — an under-filled cheatsheet wastes exam-allowed space
 - **Math formulas**: Word-native OMML format (selectable, editable, prints sharp)
 - **Concept comparison tables**: automatically suggests tables for easily-confused concepts
 - **Color-coded sections**: each chapter gets its own color; examples and answers in different colors

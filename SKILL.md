@@ -146,9 +146,10 @@ If content doesn't fit after initial generation, adjust in this order (read `ref
 
 ### Step 7: Review & deliver
 
-1. **Print simulation**: Generate a PDF preview and compare with an actual A4 sheet to check legibility
-2. **Save reminders**: **During generation, remind the user to back up after every formula insertion / image adjustment / table adjustment** (Word can crash)
-3. **Delivery**: Save the .docx to `/mnt/user-data/outputs/` and return it via `present_files`
+1. **PAGE COUNT CHECK (MANDATORY before delivery)**: Estimate the current page count of the generated .docx. If it is under the target page count, **do not deliver yet** — go back and expand content: add `p()` sub-lines with intuition, edge cases, mini-examples, exam pitfalls, concept comparisons. Repeat until the target is reached.
+2. **Print simulation**: Generate a PDF preview and compare with an actual A4 sheet to check legibility
+3. **Save reminders**: **During generation, remind the user to back up after every formula insertion / image adjustment / table adjustment** (Word can crash)
+4. **Delivery**: Save the .docx to `/mnt/user-data/outputs/` and return it via `present_files`
 
 ## Core principles
 
@@ -157,6 +158,7 @@ If content doesn't fit after initial generation, adjust in this order (read `ref
 3. **Proactive save reminders**: Word can crash during dense formula/table operations. **Remind the user to back up after every key operation.**
 4. **Use visual hierarchy well**: Bold + colors + underlines + italics to separate key points; different colors for different chapters.
 5. **Honest trade-offs**: If content really doesn't fit, tell the user clearly and help them decide what to cut.
+6. **MANDATORY PAGE-FILL ENFORCEMENT**: After generating, you MUST estimate the page count. If under the target, you are REQUIRED to expand — add `p()` sub-lines with: intuition explanations ("why does this work?"), edge cases, worked mini-examples, common exam pitfalls, comparison of similar concepts. Keep expanding until the page count reaches the target. **An under-filled cheatsheet is a failure — it wastes exam-allowed space. Do not declare the cheatsheet done until it reaches the target page count.**
 
 ## Reference files
 
