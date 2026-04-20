@@ -132,24 +132,40 @@ Key principles:
 - Common templates: fractions, integrals, summations, matrices, Greek letters
 - Italicize variables and leave 1pt padding around them for readability
 
-### Step 5: Concept comparison tables
+### Step 6: Concept comparison tables
 
 For easily confused concepts (e.g., normal vs t distribution, biased vs unbiased estimators, precision vs recall), **strongly recommend tables**.
 
 Read `references/comparison-tables.md` for table templates.
 
-### Step 6: Space compression strategies
+### Step 7: Space compression strategies
 
 If content doesn't fit after initial generation, adjust in this order (read `references/compression-tactics.md`):
 
 1. Cut textual redundancy → 2. Increase columns → 3. Reduce font size (English to 5pt, Chinese to 5pt) → 4. Switch to double-sided → 5. Suggest handwritten supplementation
 
-### Step 7: Review & deliver
+### Step 8: Review & deliver
 
-1. **PAGE COUNT CHECK (MANDATORY before delivery)**: Estimate the current page count of the generated .docx. If it is under the target page count, **do not deliver yet** — go back and expand content: add `p()` sub-lines with intuition, edge cases, mini-examples, exam pitfalls, concept comparisons. Repeat until the target is reached.
+1. **PAGE COUNT CHECK (MANDATORY before delivery)**: Estimate the current page count of the generated .docx using this formula:
+   - A4 landscape usable height ≈ 568pt (210mm − 2×0.5cm margins)
+   - Line height at `line:240, lineRule:"auto"` with 6.5pt font ≈ **11.5pt per line**
+   - Lines per column per page ≈ 568 / 11.5 ≈ **49 lines**; section headings (before:55 DXA) add ~0.24 lines each
+   - Each `img()` counts as its rendered height in pt / 11.5 lines
+   - Total capacity for 2 pages, 3 columns = **6 × 49 ≈ 294 content lines**
+   - Count all `h()`, `np()`, `p()`, `art()`, `img()` entries; compare to capacity
+   - If total < 294 lines: **under target** → expand before delivering
+
+   If it is under the target page count, **do not deliver yet** — first append a dedicated **"PROBLEM-SOLVING WALKTHROUGH"** section at the end of the cheatsheet (see rules below), then fill any remaining gap with `p()` sub-lines (intuition, edge cases, exam pitfalls, concept comparisons). Repeat until the target is reached.
+
+   **PROBLEM-SOLVING WALKTHROUGH section rules** (add when under page count):
+   - Add one `h("PROBLEM-SOLVING WALKTHROUGH", color)` heading at the end
+   - For each major topic covered in the cheatsheet, add a compact worked example: state the problem in one line, then show the solution steps as numbered `np()` / `p()` lines
+   - Use a different color (e.g. `"C55A11"`) to distinguish solution steps from regular content
+   - Keep each worked example to ≤5 lines total; prioritize topics most likely to appear on exams
+   - Only add this section once; if it already exists, expand existing examples instead of adding a new heading
 2. **Print simulation**: Generate a PDF preview and compare with an actual A4 sheet to check legibility
 3. **Save reminders**: **During generation, remind the user to back up after every formula insertion / image adjustment / table adjustment** (Word can crash)
-4. **Delivery**: Save the .docx to `/mnt/user-data/outputs/` and return it via `present_files`
+4. **Delivery**: Save the .docx to the same directory as the source materials (or the project workspace directory) and return it via `present_files`
 
 ## Core principles
 
@@ -158,7 +174,7 @@ If content doesn't fit after initial generation, adjust in this order (read `ref
 3. **Proactive save reminders**: Word can crash during dense formula/table operations. **Remind the user to back up after every key operation.**
 4. **Use visual hierarchy well**: Bold + colors + underlines + italics to separate key points; different colors for different chapters.
 5. **Honest trade-offs**: If content really doesn't fit, tell the user clearly and help them decide what to cut.
-6. **MANDATORY PAGE-FILL ENFORCEMENT**: After generating, you MUST estimate the page count. If under the target, you are REQUIRED to expand — add `p()` sub-lines with: intuition explanations ("why does this work?"), edge cases, worked mini-examples, common exam pitfalls, comparison of similar concepts. Keep expanding until the page count reaches the target. **An under-filled cheatsheet is a failure — it wastes exam-allowed space. Do not declare the cheatsheet done until it reaches the target page count.**
+6. **MANDATORY PAGE-FILL ENFORCEMENT**: After generating, you MUST estimate the page count. If under the target, you are REQUIRED to: **(a) first** append a "PROBLEM-SOLVING WALKTHROUGH" section with compact worked examples for each major topic (≤5 lines each); **(b) then** fill remaining space with `p()` sub-lines: intuition explanations, edge cases, exam pitfalls, concept comparisons. Keep expanding until the page count reaches the target. **An under-filled cheatsheet is a failure — it wastes exam-allowed space. Do not declare the cheatsheet done until it reaches the target page count.**
 
 ## Reference files
 

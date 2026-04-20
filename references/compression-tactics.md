@@ -121,5 +121,5 @@ Content won't fit?
 ## Do after every adjustment
 
 1. **Save**: Remind user to Ctrl+S; Word can crash after formula/table edits
-2. **PDF preview**: `python scripts/office/soffice.py --headless --convert-to pdf cheatsheet.docx`
+2. **PDF preview**: Use LibreOffice — `soffice --headless --convert-to pdf cheatsheet.docx` (works on Windows/macOS/Linux if LibreOffice is installed)
 3. **A4 comparison**: Tell user to print and test on actual A4 paper

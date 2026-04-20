@@ -7,7 +7,9 @@ A Claude Code skill that turns your lecture slides, homework, and notes into a p
 - **Default output**: 2-page double-sided A4 landscape Word (.docx), 3 columns, 0.5cm margins
 - **Auto-extracts** key points from uploaded PPTs, PDFs, and notes
 - **Adaptive density**: fills space intelligently — adds explanations when under 2 pages, compresses to formula-only when over
-- **Mandatory page-fill enforcement**: before delivery, estimates page count and **expands content** (adds intuition, edge cases, mini-examples, exam pitfalls) until the target is reached — an under-filled cheatsheet wastes exam-allowed space
+- **Precise page-count estimation**: counts every `h()`, `np()`, `p()`, `img()` entry against a calculated capacity (≈49 lines/column, 6 columns for 2-page A4 landscape = 294 lines) before delivery
+- **Auto "PROBLEM-SOLVING WALKTHROUGH"**: when under page count, appends compact worked examples (≤5 lines each) for every major topic before filling remaining space with sub-lines
+- **Cross-platform toolchain**: unpack/repack docx and PDF preview commands provided for Windows, macOS, and Linux
 - **Math formulas**: Word-native OMML format (selectable, editable, prints sharp)
 - **Concept comparison tables**: automatically suggests tables for easily-confused concepts
 - **Color-coded sections**: each chapter gets its own color; examples and answers in different colors
@@ -80,5 +82,9 @@ cheatsheet-maker/
 - Claude Code with `docx` npm package (`npm install -g docx`)
 - `pymupdf` (`pip install pymupdf`) — PDF text extraction and slide cropping
 - `Pillow` (`pip install Pillow`) — image cropping
-- LibreOffice (for PDF preview)
+- LibreOffice (for PDF preview — `soffice --headless --convert-to pdf cheatsheet.docx`)
 - `pandoc` (for reading existing documents)
+
+## Output location
+
+The generated `.docx` is saved to the **same directory as your source materials** (or the project workspace directory), then returned via `present_files`.

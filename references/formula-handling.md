@@ -12,14 +12,20 @@ docx-js has limited OMML support; for complex formulas the most reliable approac
 ### Steps
 
 1. Generate the base version with docx-js, using placeholders where formulas go (e.g., `{{FORMULA_1}}`)
-2. Unpack the generated .docx:
+2. Unpack the generated .docx (it is a ZIP archive):
    ```bash
-   python /mnt/skills/public/docx/scripts/office/unpack.py cheatsheet.docx unpacked/
+   # Windows
+   python -c "import zipfile; zipfile.ZipFile('cheatsheet.docx').extractall('unpacked')"
+   # macOS/Linux
+   unzip cheatsheet.docx -d unpacked/
    ```
 3. Open `unpacked/word/document.xml` and replace placeholders with OMML formula blocks
 4. Repack:
    ```bash
-   python /mnt/skills/public/docx/scripts/office/pack.py unpacked/ cheatsheet.docx
+   # Windows
+   python -c "import zipfile, os; z=zipfile.ZipFile('cheatsheet.docx','w',zipfile.ZIP_DEFLATED); [z.write(os.path.join(r,f), os.path.relpath(os.path.join(r,f),'unpacked')) for r,d,fs in os.walk('unpacked') for f in fs]; z.close()"
+   # macOS/Linux
+   cd unpacked && zip -r ../cheatsheet.docx .
    ```
 
 ## Common formula OMML templates
