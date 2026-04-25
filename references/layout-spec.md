@@ -18,10 +18,10 @@ Strictly follows the proven max-space-utilization layout.
 | Chinese body | DengXian | 5.5 pt (docx-js size = 11) |
 | English body | Calibri | 6.5 pt (docx-js size = 13) |
 | Chinese heading | SimHei | 7 pt (size = 14) |
-| English heading | Calibri Bold | 7.5 pt (size = 15) |
+| English heading | Calibri Bold | 8 pt (size = 16) |
 | Extreme compression | English 5pt (size=10), Chinese 5pt | Legible but tiring; avoid unless necessary |
 
-**Note: docx-js uses half-points, so 5.5pt = 11, 6.5pt = 13.**
+**Note: docx-js uses half-points, so 5.5pt = 11, 6.5pt = 13, 8pt = 16.**
 
 ## Line spacing
 
@@ -67,42 +67,62 @@ const SIZE = {
   bodyCn: 11,        // Chinese 5.5pt
   bodyEn: 13,        // English 6.5pt
   headingCn: 14,     // Chinese heading 7pt
-  headingEn: 15,     // English heading 7.5pt
+  headingEn: 16,     // English heading 8pt
   compressCn: 10,    // Compression mode 5pt
   compressEn: 10     // Compression mode 5pt
 };
 
 // ===== Tight paragraph spacing =====
-const tightSpacing = { before: 0, after: 0, line: 240, lineRule: "auto" };
+const tight   = { before: 0, after: 0, line: 240, lineRule: "auto" };
+const headSp  = { before: 60, after: 0, line: 240, lineRule: "auto" };
 
-// ===== Helper: body text =====
-function bodyText(text, opts = {}) {
+// ===== Base TextRun helper =====
+const tr = (text, color, bold = false, sz = SIZE.bodyEn) =>
+  new TextRun({ text, font: "Calibri", size: sz, color: color || "000000", bold });
+
+// ===== Paragraph helpers =====
+
+// Section heading (ONLY element that carries color)
+function h(text, color) {
+  return new Paragraph({ spacing: headSp, children: [tr(text, color, true, SIZE.headingEn)] });
+}
+
+// Plain body text — ALWAYS black, no color argument
+function np(text) {
+  return new Paragraph({ spacing: tight, children: [tr(text)] });
+}
+
+// Colored/bold line (e.g. problem labels in walkthrough section)
+function p(text, color, bold = false) {
+  return new Paragraph({ spacing: tight, children: [tr(text, color, bold)] });
+}
+
+// Variable definition line — italic, gray, indented
+// Use after first occurrence of a new symbol in a formula
+function vd(text) {
+  return new Paragraph({ spacing: tight, children: [
+    new TextRun({ text: "    → " + text, font: "Calibri", size: SIZE.bodyEn, color: "595959", italics: true })
+  ]});
+}
+
+// Mixed text + OMML math paragraph
+// segs: array where strings become TextRun and arrays become Math blocks
+// RULE: each formula gets its OWN mp() call (never cram multiple formulas per call)
+// RULE: entire formula including "=" and both sides goes inside the Math array
+function mp(segs) {
   return new Paragraph({
-    spacing: tightSpacing,
-    children: [new TextRun({
-      text,
-      font: opts.isEnglish ? "Calibri" : "DengXian",
-      size: opts.isEnglish ? SIZE.bodyEn : SIZE.bodyCn,
-      bold: opts.bold || false,
-      color: opts.color,
-      italics: opts.italic || false,
-      underline: opts.underline ? {} : undefined
-    })]
+    spacing: tight,
+    children: segs.map(s =>
+      typeof s === 'string'
+        ? tr(s)
+        : new Math({ children: s })
+    )
   });
 }
 
-// ===== Helper: section heading =====
+// ===== Helper: section heading (legacy alias) =====
 function sectionHeading(text, color, isEnglish = false) {
-  return new Paragraph({
-    spacing: { before: 60, after: 20, line: 240, lineRule: "auto" },
-    children: [new TextRun({
-      text,
-      font: isEnglish ? "Calibri" : "SimHei",
-      size: isEnglish ? SIZE.headingEn : SIZE.headingCn,
-      bold: true,
-      color
-    })]
-  });
+  return h(text, color);
 }
 
 // ===== Main document =====

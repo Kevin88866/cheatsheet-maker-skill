@@ -69,14 +69,15 @@ Read `references/layout-spec.md` for complete technical specs and code templates
 
 Key points at a glance:
 - **Default: A4 landscape, single section, 3 columns, target 2 pages** — use `sections: [{ properties: pageProps, children: [...page1, ...page2] }]`; A4 landscape size is `width:11906, height:16838, orientation:PageOrientation.LANDSCAPE` (docx-js swaps internally — pass portrait dimensions)
-- **Content density rule**: Use `np()` for numbered main points; use `p()` for indented sub-lines with explanations/edge cases. Fill to ~2 pages: if under, add `p()` sub-lines; if over, remove `p()` sub-lines first, then merge `np()` points
+- **Content density rule**: Use `np()` for plain body text; use `vd()` for variable definitions after first formula occurrence; use `mp()` for mixed text + OMML math. Fill to ~2 pages: if under, expand explanations and vd() lines; if over, trim np() body text first
 - A4 landscape, 0.5cm page margins all around
 - 3 columns, 0.5cm column spacing (4 columns for extreme cases)
-- Chinese: DengXian 5.5pt; English: Calibri 6.5pt
+- Chinese: DengXian 5.5pt; English: Calibri 6.5pt (SIZE.b = 13 half-points); heading 8pt (SIZE.h = 16)
 - Minimum line spacing (single line, `line: 240`, tight mode)
-- Section headings: bold + color-coded
-- **Each bullet/point within a section must be prefixed with a number (1. 2. 3. ...), resetting to 1 for each new section**
-- Example problems vs answers: different colors
+- **COLOR RULE — headings only**: section headings are color-coded; ALL body text (`np()`, `vd()`, `mp()`) must be black. Never apply color to body paragraphs.
+- **FORMULA RULE — entire expression in Math block**: when inserting a formula, the full expression including the `=` sign and BOTH sides must be inside a single `Math` block. Never split a formula so that the left side is in a TextRun and the right side is in Math.
+- **VARIABLE DEFINITION RULE**: after every formula's first appearance, add a `vd()` line defining each new symbol introduced.
+- **ONE FORMULA PER LINE**: never cram multiple formulas into one `mp()` call. Each formula gets its own line.
 - Tables: minimum width/height, zero cell padding
 
 ### Step 4: Add diagrams and images
@@ -149,11 +150,12 @@ If content doesn't fit after initial generation, adjust in this order (read `ref
 1. **PAGE COUNT CHECK (MANDATORY before delivery)**: Estimate the current page count of the generated .docx using this formula:
    - A4 landscape usable height ≈ 568pt (210mm − 2×0.5cm margins)
    - Line height at `line:240, lineRule:"auto"` with 6.5pt font ≈ **11.5pt per line**
-   - Lines per column per page ≈ 568 / 11.5 ≈ **49 lines**; section headings (before:55 DXA) add ~0.24 lines each
+   - Lines per column per page ≈ 568 / 11.5 ≈ **49 lines**; section headings (before:60 DXA) add ~0.26 extra lines each
    - Each `img()` counts as its rendered height in pt / 11.5 lines
-   - Total capacity for 2 pages, 3 columns = **6 × 49 ≈ 294 content lines**
-   - Count all `h()`, `np()`, `p()`, `art()`, `img()` entries; compare to capacity
-   - If total < 294 lines: **under target** → expand before delivering
+   - Total capacity for 2 pages, 3 columns = **6 × 49 ≈ 294 physical lines**
+   - **IMPORTANT — text wrapping**: long `np()` explanatory lines (80–150 chars) wrap to 2–3 physical lines each. Count *physical* lines, not logical entries. A single np() sentence ≈ 1.5–2 physical lines on average.
+   - Count all entries and their estimated physical lines; compare to 294 capacity
+   - If total < 294 physical lines: **under target** → expand before delivering
 
    If it is under the target page count, **do not deliver yet** — first append a dedicated **"PROBLEM-SOLVING WALKTHROUGH"** section at the end of the cheatsheet (see rules below), then fill any remaining gap with `p()` sub-lines (intuition, edge cases, exam pitfalls, concept comparisons). Repeat until the target is reached.
 
