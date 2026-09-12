@@ -1,28 +1,18 @@
 # cheatsheet-maker
 
-A Claude Code skill that turns your lecture slides, homework, and notes into a print-ready exam cheatsheet — maximizing every square centimeter of A4 paper.
+A Claude Code skill that turns lecture slides, notes and homework into a print-ready exam cheatsheet you can actually read under exam stress.
 
 ## What it does
 
-- **Default output**: 2-page double-sided A4 landscape Word (.docx), 3 columns, 0.5cm margins
-- **Auto-extracts** key points from uploaded PPTs, PDFs, and notes
-- **Adaptive density**: fills space intelligently — adds explanations when under 2 pages, compresses to formula-only when over
-- **Precise page-count estimation**: counts every `h()`, `np()`, `p()`, `img()` entry against a calculated capacity (≈49 lines/column, 6 columns for 2-page A4 landscape = 294 lines) before delivery
-- **Auto "PROBLEM-SOLVING WALKTHROUGH"**: when under page count, appends compact worked examples (≤5 lines each) for every major topic before filling remaining space with sub-lines
-- **Cross-platform toolchain**: unpack/repack docx and PDF preview commands provided for Windows, macOS, and Linux
-- **Math formulas**: Word-native OMML format (selectable, editable, prints sharp)
-- **Concept comparison tables**: automatically suggests tables for easily-confused concepts
-- **Color-coded sections**: each chapter gets its own color; examples and answers in different colors
-- **Diagrams and images**: crops diagrams from lecture slides (PDF < 25 MB), draws box diagrams with docx tables, or falls back to ASCII-art
-- **PDF size-aware**: automatically switches to text-only extraction for large PDFs (≥ 25 MB) to avoid memory issues
-- **Compression strategies**: step-by-step playbook when content won't fit
-
-## Example
-
-<img width="2559" height="1536" alt="image" src="https://github.com/user-attachments/assets/673766bb-43bd-4128-9b87-f60994b98376" />
-<img width="2559" height="1599" alt="image" src="https://github.com/user-attachments/assets/12e2305d-c308-4613-9cde-c344d40f3e08" />
-<img width="2559" height="1599" alt="image" src="https://github.com/user-attachments/assets/6190d3e2-0587-470b-9bc2-a695f2fa0fdc" />
-
+- **Output**: A4 landscape, 3-column Word (.docx) + PDF, page count driven by content, body text 8.5–9pt and never below 8pt
+- **Synthesizes instead of transcribing**: opens with a one-table map of the whole course, merges concepts the slides scatter across chapters, turns "unlike X…" remarks into side-by-side tables, writes "principle → consequences" chains and "how to derive it" rules
+- **Typography hierarchy**: coloured chapter bars, sub-headings, sans body, monospace for mnemonics / encodings / signals, bold key terms, highlighted ⚠ exam-trap lines
+- **Tables for everything two-dimensional**: encodings, control signals, register conventions, flag semantics, A-vs-B comparisons
+- **No filler, no invented abbreviations, no worked numeric examples** unless you ask for them
+- **Bilingual**: Chinese body with technical terms kept in English when you write in Chinese
+- **Figures** cropped from slides at high resolution; full-width figures placed in a balanced final section
+- **Fills the pages by growing the font**, not by cramming or padding
+- **Runnable build template** (`references/build-template.js`) so a sheet can be extended chapter by chapter as the course goes on
 
 ## Installation
 
@@ -30,61 +20,51 @@ A Claude Code skill that turns your lecture slides, homework, and notes into a p
 git clone https://github.com/Kevin88866/cheatsheet-maker-skill.git "%USERPROFILE%\.claude\skills\cheatsheet-maker"
 ```
 
-Restart Claude Code if this is your first time adding a skill. Otherwise it hot-reloads automatically.
+Restart Claude Code if this is your first skill; otherwise it hot-reloads.
 
 ## Usage
 
-Just describe what you need — Claude picks up the skill automatically:
+> "Make me a cheatsheet for CG3207 from the lecture PDFs in ./Lecture"
 
-> "Make me a cheatsheet for my statistics final"
+> "把这几章课件做成 cheatsheet，中文为主，关键术语保留英文"
 
-> "I have a PPT and 3 homework sets — compress them into a cheatsheet"
+> "Extend the cheatsheet with chapters 5 and 6"
 
-> "Help me condense these notes onto one A4 sheet"
-
-You can also invoke it directly with `/cheatsheet-maker`.
+Or invoke directly with `/cheatsheet-maker`.
 
 ## File structure
 
 ```
 cheatsheet-maker/
-├── SKILL.md                          # Main skill entry point
+├── SKILL.md                          # Rules and workflow
 └── references/
-    ├── layout-spec.md                # A4 3-column docx-js code template
-    ├── formula-handling.md           # Word math formula insertion (OMML + Unicode)
-    ├── comparison-tables.md          # Concept comparison table templates
-    ├── compression-tactics.md        # Strategies when content won't fit
-    └── extraction-prompts.md         # How to extract key points from PPTs/homework
+    ├── build-template.js             # Complete docx-js build script; copy and fill in content
+    ├── layout-spec.md                # Geometry, fonts, tables, figures, PDF export, page tuning
+    ├── extraction-prompts.md         # Synthesis moves, keep/cut lists, per-slide checklist
+    ├── comparison-tables.md          # When and how to use tables
+    ├── formula-handling.md           # Word-native OMML math
+    └── compression-tactics.md        # Only for exams with an enforced page limit
 ```
 
-## Layout specs
+## Layout at a glance
 
 | Parameter | Value |
 |-----------|-------|
-| Paper | A4 landscape |
-| Margins | 0.5 cm all sides |
-| Columns | 3 (4 for extreme cases) |
-| Column spacing | 0.5 cm |
-| Chinese font | DengXian 5.5pt |
-| English font | Calibri 6.5pt |
-| Default page count | 2 pages (double-sided) |
-
-## Diagram support
-
-| Mode | Trigger | Diagram behavior |
-|------|---------|-----------------|
-| Screenshot enabled | Total PDF size < 25 MB | Crop diagrams from slides with pymupdf + Pillow |
-| Screenshot disabled | Total PDF size ≥ 25 MB | Replace diagrams with concise text descriptions |
-| Self-drawn | No source image | Draw with docx tables (colored cells + arrow chars) or ASCII-art |
+| Paper | A4 landscape, 1 cm margins |
+| Columns | 3, 0.6 cm gap, separator rule |
+| Headings | Microsoft YaHei bold, white on chapter colour |
+| Body | Calibri / 等线 8.5–9pt (floor 8pt) |
+| Code, encodings | Consolas |
+| Tables | fixed layout, ≤ 8.5 cm wide, coloured header, zebra rows |
+| Page count | as long as the content needs; font grows to fill the last page |
 
 ## Requirements
 
-- Claude Code with `docx` npm package (`npm install -g docx`)
-- `pymupdf` (`pip install pymupdf`) — PDF text extraction and slide cropping
-- `Pillow` (`pip install Pillow`) — image cropping
-- LibreOffice (for PDF preview — `soffice --headless --convert-to pdf cheatsheet.docx`)
-- `pandoc` (for reading existing documents)
+- Claude Code with the `docx` npm package (`npm install -g docx`)
+- Python with `pymupdf` and `Pillow` (slide text and figure extraction)
+- `pdftotext` (poppler) optional
+- PDF export: Microsoft Word (Windows, via COM) or LibreOffice
 
-## Output location
+## Output
 
-The generated `.docx` is saved to the **same directory as your source materials** (or the project workspace directory), then returned via `present_files`.
+`.docx`, `.pdf`, the build script and a `cheatsheet_assets/` folder with cropped figures are saved next to your source material, so the sheet can be rebuilt and extended later.

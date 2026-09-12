@@ -1,121 +1,46 @@
-# Concept Comparison Tables
+# Comparison tables
 
-Comparison tables are the highest-lookup-efficiency layout for exam day. Use them for confusable concepts.
+Tables are the highest-lookup-speed layout on a cheatsheet. Use them for anything with two or more dimensions.
 
 ## When to use
 
-Strongly recommend comparison tables for:
+- Two things the course keeps contrasting: RISC-V vs ARM, fixed-point vs floating-point, Moore vs Mealy, t-test vs z-test.
+- Variants of one thing: instruction formats, load/store widths, IEEE precisions, distributions.
+- Encodings and control signals: opcode / funct3 tables, control truth tables, flag semantics.
+- "When is which rule right": signed vs unsigned overflow, sign-extend vs zero-extend, caller- vs callee-saved.
+- Overviews: chapter × layer × what-it-produces maps.
 
-- **Two similar methods/models**: t-test vs z-test, Ridge vs Lasso, Precision vs Recall
-- **Case-by-case distinctions**: discrete vs continuous, biased vs unbiased, parametric vs non-parametric
-- **Similar formulas with different conditions**: density functions across distributions, variances of different estimators
-- **Pros/cons comparisons**: time/space complexity across algorithms
-- **Definition + formula + condition**: classic three-column structure
+## Shapes
 
-## Template 1: Two-column comparison (A vs B)
+**A vs B** — first column is the attribute, one column per thing. Put the attribute the reader searches by (e.g. "flags", "immediates") in the first column.
+
+**Variants** — one row per variant, columns for the fields that differ. Mnemonic or code in a monospace column.
+
+**Rule table** — condition | formula | one-line reason. The reason column is what makes it memorable.
+
+**Overview map** — layer / stage | what it is | who works at it / artefact | where in the course.
+
+## Using the template helper
 
 ```javascript
-const border = { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" };
-const borders = { top: border, bottom: border, left: border, right: border };
+table(['', 'RISC-V', 'ARM'], [
+  ['flags', '无', 'NZCV，CMP 设置、条件码使用'],
+  ['移位', 'sll / srl / sra 是真指令', 'MOV 的变体'],
+], [2.0, 3.3, 3.2], { zebra: true });          // widths in cm, total ≤ 8.5
 
-new Table({
-  width: { size: 3000, type: WidthType.DXA },   // Roughly one column wide
-  columnWidths: [1500, 1500],
-  rows: [
-    // Header
-    new TableRow({
-      tableHeader: true,
-      children: [
-        new TableCell({
-          borders,
-          width: { size: 1500, type: WidthType.DXA },
-          shading: { fill: "F2F2F2", type: ShadingType.CLEAR },
-          margins: { top: 20, bottom: 20, left: 40, right: 40 },
-          children: [new Paragraph({
-            spacing: tightSpacing,
-            alignment: AlignmentType.CENTER,
-            children: [new TextRun({ text: "t-test", bold: true, size: 11, font: "Calibri" })]
-          })]
-        }),
-        new TableCell({
-          borders,
-          width: { size: 1500, type: WidthType.DXA },
-          shading: { fill: "F2F2F2", type: ShadingType.CLEAR },
-          margins: { top: 20, bottom: 20, left: 40, right: 40 },
-          children: [new Paragraph({
-            spacing: tightSpacing,
-            alignment: AlignmentType.CENTER,
-            children: [new TextRun({ text: "z-test", bold: true, size: 11, font: "Calibri" })]
-          })]
-        })
-      ]
-    }),
-    // Data row
-    new TableRow({
-      children: [
-        new TableCell({
-          borders,
-          width: { size: 1500, type: WidthType.DXA },
-          margins: { top: 20, bottom: 20, left: 40, right: 40 },
-          children: [new Paragraph({
-            spacing: tightSpacing,
-            children: [new TextRun({ text: "sigma unknown, small n (<30)", size: 11, font: "Calibri" })]
-          })]
-        }),
-        new TableCell({
-          borders,
-          width: { size: 1500, type: WidthType.DXA },
-          margins: { top: 20, bottom: 20, left: 40, right: 40 },
-          children: [new Paragraph({
-            spacing: tightSpacing,
-            children: [new TextRun({ text: "sigma known OR n>=30", size: 11, font: "Calibri" })]
-          })]
-        })
-      ]
-    })
-  ]
-})
+table(['op', '指令', 'ImmSrc', 'ALUControl'], rows,
+  [0.5, 1.0, 1.0, 2.2], { mono: [0, 2, 3], center: [0], zebra: true });
 ```
 
-## Template 2: Three-column comparison (concept | formula | condition)
+- `mono`: column indexes rendered in Consolas.
+- `center`: column indexes centred.
+- `zebra`: alternate row fill for long tables.
+- Header row automatically takes the current chapter colour.
 
-Best for quick lookups:
+## Rules
 
-| Distribution | Density | Use case |
-|--------------|---------|----------|
-| Normal | (1/σ√2π)exp(-(x-μ)²/2σ²) | Symmetric continuous variable |
-| Poisson | λᵏe⁻λ/k! | Count data, rare events |
-| Binomial | C(n,k)pᵏ(1-p)ⁿ⁻ᵏ | n independent trials |
-
-Generate with a three-column Table; bold the concept column.
-
-## Template 3: Multi-attribute comparison (model/algorithm comparison)
-
-Attributes across the top (complexity, space, assumptions, pros, cons), methods down the side:
-
-| Algorithm | Time | Space | Assumptions | When |
-|-----------|------|-------|-------------|------|
-| Linear Reg | O(np²) | O(p²) | Linear, normal errors | Continuous target |
-| Logistic | O(np) | O(p) | Linear log-odds | Binary classification |
-| Random Forest | O(n log n·p·B) | O(Bnp) | None | General purpose |
-
-## Color strategy
-
-- **Header**: Light gray background (F2F2F2) or a lightened version of the chapter color
-- **Key column** (leftmost concept name): Bold, use the chapter's primary color
-- **Critical differences**: Red highlight (color C00000)
-
-## Space-saving tips
-
-1. **Abbreviate headers**: Shorten where possible ("Time Complexity" → "Time")
-2. **Remove borders**: Alignment alone can create comparison effect
-   ```javascript
-   borders: {
-     top: { style: BorderStyle.NONE },
-     bottom: { style: BorderStyle.NONE },
-     left: { style: BorderStyle.NONE },
-     right: { style: BorderStyle.NONE }
-   }
-   ```
-3. **Minimize cell padding**: `margins: { top: 10, bottom: 10, left: 30, right: 30 }`
-4. **Span columns**: If a table is critical, it can span two columns (adjust section properties)
+- Total column width ≤ 8.5 cm. Widen the column that holds the longest token; a wrapped mnemonic is unreadable.
+- Short header text; if a header wraps, rename it.
+- Bold the key term in a cell, not the whole cell.
+- Keep a small table in one column (`keepNext` is set by the template).
+- A table that needs more than ~10 columns is two tables.

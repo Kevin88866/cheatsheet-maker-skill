@@ -1,202 +1,103 @@
-# Layout Specification — A4 Three-Column Cheatsheet
+# Layout Specification — A4 landscape, 3 columns, readable
 
-Strictly follows the proven max-space-utilization layout.
+The template that implements all of this is `build-template.js`. This file explains the numbers.
 
-## Page specifications
+## Page geometry
 
 | Parameter | Value | Notes |
 |-----------|-------|-------|
-| Paper | A4 landscape | 11906 x 16838 DXA; landscape maximizes content width |
-| Page margins | 0.5 cm = 283 DXA | All four sides |
-| Columns | 3 (default) | Use 4 if content is very dense |
-| Column spacing | 0.5 cm = 283 DXA | |
+| Paper | A4 landscape | pass `width: 11906, height: 16838, orientation: LANDSCAPE` — **portrait numbers**; docx-js swaps them. Passing 16838×11906 plus the flag gives a portrait page. |
+| Margins | 1 cm = 560 DXA | all sides; 0.5 cm looks cramped when printed |
+| Columns | 3, `separate: true` | a thin rule between columns helps scanning |
+| Column gap | 0.6 cm = 340 DXA | |
+| Usable column width | ≈ 8.84 cm = 5013 DXA | tables must total ≤ 8.5 cm |
 
-## Font specifications
+Sections, in order:
+1. Title — single column, continuous.
+2. Body — 3 columns, continuous.
+3. Optional full-width figure — single column, continuous, **last**. Word balances the body columns above it.
 
-| Element | Font | Size |
-|---------|------|------|
-| Chinese body | DengXian | 5.5 pt (docx-js size = 11) |
-| English body | Calibri | 6.5 pt (docx-js size = 13) |
-| Chinese heading | SimHei | 7 pt (size = 14) |
-| English heading | Calibri Bold | 8 pt (size = 16) |
-| Extreme compression | English 5pt (size=10), Chinese 5pt | Legible but tiring; avoid unless necessary |
+## Fonts
 
-**Note: docx-js uses half-points, so 5.5pt = 11, 6.5pt = 13, 8pt = 16.**
+| Element | Font | Size (half-points) |
+|---------|------|--------------------|
+| Chapter heading (`h1`) | Microsoft YaHei Bold, white on chapter colour | BODY + 5 |
+| Sub-heading (`h2`) | Microsoft YaHei Bold, chapter colour, bottom rule | BODY + 2 |
+| Body Latin | Calibri | BODY (default 17 = 8.5pt; 18 = 9pt) |
+| Body CJK | 等线 (DengXian) via `eastAsia` | BODY |
+| Code / mnemonics / bit fields | Consolas | BODY − 1 |
+| Table text | same as body | BODY − 1 |
+| Formula line | body, slightly larger | BODY + 1 |
 
-## Line spacing
+Rules:
+- **BODY never below 16 (8pt).**
+- Set `font: { ascii, hAnsi, eastAsia, cs }` on every run, otherwise CJK falls back to SimSun and looks wrong.
+- Inline markup handled by the template: `**bold**` for key terms, `` `code` `` for mnemonics and signals.
+- Body text is black. Colour is reserved for headings, the ⚠ trap line (yellow fill, red mark) and code (dark blue).
 
-- **Minimum**: `line: 240, lineRule: "auto"` (single line)
-- Zero spacing before/after paragraphs: `spacing: { before: 0, after: 0, line: 240, lineRule: "auto" }`
-- Slight breathing room between sections: 60 DXA
+## Colours
 
-## Images
+One colour per chapter, used for its `h1` bar, `h2` text and table header fill. Defaults in the template: slate, navy, green, brown, purple, teal, dark red. Keep them dark enough for white text.
 
-- **Tight wrap**: wrap tight
-- **Image-to-text distance**: 0 (adjust to 5-10 DXA if it overlaps text)
+## Spacing
+
+- Paragraphs: `line: 240` (single), `after: 14–20`.
+- `h1`: `before: 90, after: 40`, `keepNext`.
+- `h2`: `before: 70, after: 20`, `keepNext`.
+- Bullets: hanging indent 170 DXA with a tab stop, "•" glyph.
+- Code blocks: light grey fill, `line: 220`.
 
 ## Tables
 
-- **Minimum width/height**: cells auto-fit content
-- **Cell padding**: 0 (when borders are solid) or 20 DXA (borderless)
-- **Borders**: 1pt light gray CCCCCC
+- `layout: TableLayoutType.FIXED`, explicit `columnWidths` (DXA = cm × 567), table `width` = sum of columns.
+- Cell margins 8 / 8 / 25 / 25 DXA. Thin grey borders (`size: 4, color: 999999`).
+- Header row: chapter colour fill, white bold text, `tableHeader: true`.
+- Zebra rows (`F7F7F7`) for tables longer than ~6 rows.
+- Rows `cantSplit`; cell paragraphs `keepNext` so a short table stays in one column.
+- Monospace columns for encodings / mnemonics; centre narrow numeric columns.
 
-## Complete docx-js code template
+## Figures
 
-```javascript
-const fs = require('fs');
-const {
-  Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
-  AlignmentType, PageOrientation, LevelFormat, HeadingLevel,
-  BorderStyle, WidthType, ShadingType, SectionType, PageBreak
-} = require('docx');
+- Crop from slides with pymupdf at ≥ 200 dpi, then Pillow `crop`. Save PNGs into `cheatsheet_assets/` next to the output.
+- Inline figure width ≤ 4 cm. Full-width figure 17–20 cm in the final single-column section.
+- Never crop slide tables; rebuild them.
 
-// ===== Colors (for chapter differentiation) =====
-const COLORS = {
-  chapter1: "C00000",   // Dark red
-  chapter2: "0070C0",   // Blue
-  chapter3: "00B050",   // Green
-  chapter4: "7030A0",   // Purple
-  example: "000000",    // Example problems: black
-  answer: "C00000",     // Answers: red
-  formula: "0070C0",    // Formulas: blue
-  highlight: "FFFF00"   // Highlight background
-};
+## Build and export
 
-// ===== Font sizes (half-points) =====
-const SIZE = {
-  bodyCn: 11,        // Chinese 5.5pt
-  bodyEn: 13,        // English 6.5pt
-  headingCn: 14,     // Chinese heading 7pt
-  headingEn: 16,     // English heading 8pt
-  compressCn: 10,    // Compression mode 5pt
-  compressEn: 10     // Compression mode 5pt
-};
-
-// ===== Tight paragraph spacing =====
-const tight   = { before: 0, after: 0, line: 240, lineRule: "auto" };
-const headSp  = { before: 60, after: 0, line: 240, lineRule: "auto" };
-
-// ===== Base TextRun helper =====
-const tr = (text, color, bold = false, sz = SIZE.bodyEn) =>
-  new TextRun({ text, font: "Calibri", size: sz, color: color || "000000", bold });
-
-// ===== Paragraph helpers =====
-
-// Section heading (ONLY element that carries color)
-function h(text, color) {
-  return new Paragraph({ spacing: headSp, children: [tr(text, color, true, SIZE.headingEn)] });
-}
-
-// Plain body text — ALWAYS black, no color argument
-function np(text) {
-  return new Paragraph({ spacing: tight, children: [tr(text)] });
-}
-
-// Colored/bold line (e.g. problem labels in walkthrough section)
-function p(text, color, bold = false) {
-  return new Paragraph({ spacing: tight, children: [tr(text, color, bold)] });
-}
-
-// Variable definition line — italic, gray, indented
-// Use after first occurrence of a new symbol in a formula
-function vd(text) {
-  return new Paragraph({ spacing: tight, children: [
-    new TextRun({ text: "    → " + text, font: "Calibri", size: SIZE.bodyEn, color: "595959", italics: true })
-  ]});
-}
-
-// Mixed text + OMML math paragraph
-// segs: array where strings become TextRun and arrays become Math blocks
-// RULE: each formula gets its OWN mp() call (never cram multiple formulas per call)
-// RULE: entire formula including "=" and both sides goes inside the Math array
-function mp(segs) {
-  return new Paragraph({
-    spacing: tight,
-    children: segs.map(s =>
-      typeof s === 'string'
-        ? tr(s)
-        : new Math({ children: s })
-    )
-  });
-}
-
-// ===== Helper: section heading (legacy alias) =====
-function sectionHeading(text, color, isEnglish = false) {
-  return h(text, color);
-}
-
-// ===== Main document =====
-const doc = new Document({
-  styles: {
-    default: {
-      document: { run: { font: "DengXian", size: SIZE.bodyCn } }
-    }
-  },
-  sections: [{
-    properties: {
-      page: {
-        // A4 landscape — docx-js swaps internally, pass portrait dimensions
-        size: {
-          width: 11906,
-          height: 16838,
-          orientation: PageOrientation.LANDSCAPE
-        },
-        margin: {
-          top: 283, right: 283, bottom: 283, left: 283  // 0.5cm on all sides
-        }
-      },
-      column: {
-        count: 3,
-        space: 283,     // 0.5cm column spacing
-        equalWidth: true
-      }
-    },
-    children: [
-      // Chapter 1
-      sectionHeading("Chapter 1 Descriptive Stats", COLORS.chapter1, true),
-      bodyText("Mean = Sum(xi)/n", { isEnglish: true }),
-      bodyText("Var = Sum((xi-mu)^2)/n", { isEnglish: true }),
-      // ... more content
-
-      // Chapter 2
-      sectionHeading("Chapter 2 Hypothesis Tests", COLORS.chapter2, true),
-      // ...
-    ]
-  }]
-});
-
-Packer.toBuffer(doc).then(buffer => {
-  fs.writeFileSync("/mnt/user-data/outputs/cheatsheet.docx", buffer);
-  console.log("Done!");
-});
-```
-
-## 4-column mode (for very dense content)
-
-Change `column.count` to 4, `space` to 200 DXA. Font sizes can stay the same or shrink slightly.
-
-## Double-sided mode
-
-Add a second section; docx-js automatically creates a new page:
-
-```javascript
-sections: [
-  { properties: {...}, children: [ /* Page 1 */ ] },
-  {
-    properties: { /* same specs */ },
-    children: [ /* Page 2 */ ]
-  }
-]
-```
-
-## Validation
-
-After generating, always validate:
 ```bash
-python /mnt/skills/public/docx/scripts/office/validate.py /mnt/user-data/outputs/cheatsheet.docx
+BODY=17 LINE=240 IMGW=20 node build.js      # BODY half-points, LINE spacing, IMGW figure width in cm
 ```
 
-And convert to PDF for preview (compare with actual A4 printout):
-```bash
-python /mnt/skills/public/docx/scripts/office/soffice.py --headless --convert-to pdf cheatsheet.docx
+Windows (Word installed, no LibreOffice) — `topdf.ps1`:
+```powershell
+param($in,$out)
+$w = New-Object -ComObject Word.Application; $w.Visible=$false
+$d = $w.Documents.Open($in)
+"PAGES=" + $d.ComputeStatistics(2)
+$d.ExportAsFixedFormat($out, 17)
+$d.Close(0); $w.Quit()
 ```
+```bash
+powershell -ExecutionPolicy Bypass -File topdf.ps1 "D:\path\sheet.docx" "D:\path\sheet.pdf"
+```
+If the export throws a COM error, a previous Word instance still holds the file; rerun.
+
+macOS / Linux:
+```bash
+soffice --headless --convert-to pdf sheet.docx
+```
+
+Render pages for inspection:
+```python
+import fitz
+d = fitz.open("sheet.pdf")
+for i, p in enumerate(d): p.get_pixmap(dpi=110).save(f"pg{i+1}.png")
+```
+
+## Page-count tuning loop
+
+1. Build at BODY=17. Note pages and how full the last page is.
+2. Last page under ~60% full → raise BODY to 18 (or LINE to 264) and rebuild. If that is not enough, grow the trailing figure instead.
+3. Last page overflows by a few lines → lower LINE to 230 or trim one low-value bullet; do not drop below BODY=16.
+4. A full-width figure that lands on its own page: reduce IMGW until it fits below the balanced columns, or accept the extra page if the figure is essential.
+5. Always look at the rendered PNGs after every change; page count alone hides overflowing tables.

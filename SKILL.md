@@ -1,193 +1,95 @@
 ---
 name: cheatsheet-maker
-description: Create exam cheatsheets (crib sheets / reference sheets) on A4 landscape pages (3 columns, content-driven page count), with the core goal of maximizing paper space utilization. Use this skill whenever the user mentions "cheatsheet", "crib sheet", "reference sheet", "exam cheatsheet", "A4 summary", "one-page study guide", "final exam one-pager", or uploads PPTs/homework/notes and wants them compressed onto a single sheet. Also applies when the user says things like "help me condense this onto one page", "make an exam cheatsheet", or "printable review sheet". Output is a Word (.docx) file with extreme space-efficient layout, supporting math formulas, concept comparison tables, automatic compression strategies, and automatic key-point extraction from PPTs/homework/notes.
+description: Create exam cheatsheets (crib sheets / reference sheets) as A4 landscape, 3-column Word (.docx) + PDF, built for fast lookup under exam stress. Use this skill whenever the user mentions "cheatsheet", "crib sheet", "reference sheet", "exam cheatsheet", "A4 summary", "study guide", or uploads lecture slides / PDFs / notes and wants them condensed for an exam. Core rules — readable typography hierarchy over cramming, synthesized summaries over slide transcription, tables over prose, no filler words, no invented abbreviations, no worked examples unless asked, page count driven by content, and the font grows (never shrinks below 8pt) to fill the last page.
 ---
 
 # Cheatsheet Maker
 
-Creates cheatsheets (crib sheets / reference sheets) that maximize A4 paper space for exam use. Core philosophy: **cram all the essentials onto 2 A4 pages (double-sided) while keeping them legible.**
+Turns lecture slides, notes and homework into a print-ready exam cheatsheet. The sheet is something the user scans in five seconds under stress, so **findability and readability beat density**. Most exams that allow a cheatsheet allow several pages; a sheet nobody can read wastes every one of them.
 
 ## Trigger scenarios
 
-Activate this skill for any of the following requests:
-- "Help me make a cheatsheet / crib sheet / reference sheet"
-- "One-page summary for final exam"
-- "Condense this content onto one A4 sheet"
-- Uploading PPTs / homework / notes and asking to "compress into a cheatsheet"
-- Requesting a one-page printable review sheet
+- "Make me a cheatsheet / crib sheet / reference sheet for <course>"
+- "Condense these slides / notes for the final"
+- User uploads lecture PDFs / PPTs and asks for a summary to print
+- User asks to extend an existing cheatsheet with new chapters
+
+## The eight rules (read before writing anything)
+
+1. **Synthesize, don't transcribe.** The slides are the source, not the outline. When the same idea appears in three places (e.g. "layers of abstraction" in the intro chapter, the ISA chapter and the design-flow chapter), write **one** unified table or list and say how the pieces connect. When a design has a cause and consequences, write "principle → consequence 1 → consequence 2" instead of listing the consequences as unrelated facts. Add "how to derive X without memorizing the table" notes where a rule exists.
+2. **One fact per bullet, no filler.** Delete lead-ins ("note that", "in this case", "it is important to"), delete restatements of the slide title, delete the second half of any sentence that only rephrases the first half. If a bullet needs a second sentence, it is usually two bullets.
+3. **No invented abbreviations.** Use the course's own names (ISA, CPI, CLA, ALU) and spell everything else out. "Instr", "comb.", "reg." and similar save nothing and cost a re-read.
+4. **Tables for anything with two or more dimensions.** Encodings, control signals, register conventions, A-vs-B comparisons, flag semantics, "when to use which" all go in tables. Prose is for a single line of reasoning only.
+5. **Typography hierarchy, several fonts.** Coloured heading bars for chapters, coloured underlined sub-headings, a body sans font, a monospace font for code / mnemonics / bit fields / signal names, bold for the key term in each bullet, a highlighted ⚠ line for exam traps. One font at one size is unreadable no matter how good the content is.
+6. **No worked numeric examples by default.** Keep the rule, the procedure and the trap; drop the numbers. Add examples only when the user asks, or when the exam is known to reuse homework variants.
+7. **Page count is driven by content; the font is driven by page count.** Body text starts at 8.5–9pt and **never goes below 8pt**. If the content ends part-way down the last page, **increase** the font or line spacing until the pages are full. Do not pad with extra content to fill space unless the user asks.
+8. **Language follows the user.** If the user writes in Chinese, the body is Chinese with technical terms kept in English (instruction mnemonics, signal names, standard terms like load-store, critical path, callee-saved). Otherwise English throughout.
 
 ## Workflow
 
-### Step 1: Gather materials and clarify requirements
+### Step 1: Confirm scope and constraints (only what is not already known)
 
-Ask the user these key questions (unless already answered):
+- Which chapters / files are in scope? Is there an instructor list of examinable topics?
+- Exam rules: page limit? printed allowed? colour allowed? Language preference?
+- Is an earlier cheatsheet being extended? If so, reuse its build script and style.
 
-1. **Subject and scope**: What course? What's the exam coverage? Is there a syllabus / study guide from the instructor?
-2. **Source materials**:
-   - Any PPTs / lecture notes / homework / example problems / sample exams? → Have them upload
-   - If they already have organized content, have them paste it
-3. **Exam rules**:
-   - A4 single-sided? Double-sided?
-   - Handwritten annotations allowed or print-only?
-   - Any font size / layout restrictions?
-4. **Content preferences**:
-   - Focus on formula derivations or concept memorization?
-   - Include example problems?
-5. **Paper strategy**: **Default target = 2 pages (double-sided A4 landscape, 3 columns).** Adaptive content strategy:
-   - **Under 2 pages**: aggressively expand — add explanatory sub-lines for every concept, include intuition ("why does this work?"), edge cases, worked mini-examples, comparison of similar concepts, common exam pitfalls. Keep adding until the content fills the target page count. An under-filled cheatsheet wastes exam-allowed space.
-   - **Over 2 pages**: compress — cut explanatory sub-lines, merge related points, reduce to formula-only style. **NEVER exceed the target page count.** Generate, estimate page count, and iterate compression until the content fits.
-   - Only override the 2-page default if user explicitly specifies a different page count
+Ask these in one message. Do not ask again later.
 
-### Step 2: Extract and organize content
+### Step 2: Read everything, then plan the structure yourself
 
-If the user uploaded PPTs / homework / notes:
+1. Extract slide text (`pdftotext -layout`, or pymupdf). Read all of it before writing; partial reading produces slide-order transcription.
+2. Draft the section list **by topic, not by slide order**. Merge overlapping material across chapters. Typical opening section: an overview table that places every chapter on one mental map.
+3. For each section decide the form first: table, bullet list, code block, formula, or figure. See `references/extraction-prompts.md` for what to keep and what to cut.
+4. Mark the exam traps (things the lecturer flagged, easy-to-confuse pairs, sign conventions) — these become ⚠ lines.
 
-1. **Read the materials**:
-   - PPT → use pptx-related tools to extract text
-   - DOCX → `extract-text` command
-   - **PDF → size-check first (see below)**
+### Step 3: Choose figures
 
-   **PDF size check protocol** (run before reading any PDF):
-   - Sum the file sizes of all PDFs the user has provided
-   - **If total < 25 MB**: read PDFs directly with pdf-reading tools. Screenshot/image cropping in Step 4 is **enabled** — crop diagrams from slides as usual.
-   - **If total ≥ 25 MB**: convert each PDF to plain text first (e.g., `pdftotext`, `pymupdf` text extraction, or `pandoc`), then read the resulting `.txt` files. Screenshot/image cropping in Step 4 is **disabled** — replace all diagram slots with concise **text descriptions** of the visual (e.g., "State diagram: READY→RUNNING on dispatch, RUNNING→BLOCKED on I/O wait, RUNNING→READY on preempt"). Never attempt to extract images from the PDF in this mode.
-2. **Extraction strategy** (based on proven exam-prep principles):
-   - **Example problems**: Integrate sample exam questions and homework solution skeletons (instructors often test homework variants)
-   - **PPT key concepts**: List key definitions, formulas, theorems; turn easily-confused concepts into comparison tables
-   - **Open questions**: Build answer frameworks for open-ended questions on the slides
-3. **Content compression**:
-   - Delete filler words and long example sentences; keep only conclusions
-   - Compress procedural derivations into single-line formula chains
-   - Compress concept definitions into one sentence
-4. **Grouping**: Organize as "Chapter → Topic → Formula/Example"
+A figure earns its place only when the spatial relationship is the content (a datapath, a state machine, a memory layout). Crop it from the slides at ≥200 dpi with pymupdf + Pillow. Slide **tables** must be rebuilt as native docx tables; cropped tables are unreadable at column width.
 
-### Step 3: Generate the Word cheatsheet
+- Small figures (≤ 4 cm wide) go inline in a column.
+- Large figures (a full datapath) go in a **single-column continuous section at the very end** of the document; Word balances the preceding columns above it. Never put a full-width figure mid-document — it leaves a gap wherever it does not fit.
 
-Use `docx-js` to generate, **strictly following these layout rules** (proven max-space formula from user experience):
+### Step 4: Build with the template
 
-Read `references/layout-spec.md` for complete technical specs and code templates.
+Copy `references/build-template.js` and fill in the content section. It already provides: `h1`, `h2`, `b` (bullet), `warn` (⚠ trap line), `code`, `formula`, `table`, `img`, an inline markup parser (`**bold**`, `` `code` ``), fixed-layout tables, the title section, the 3-column body section and the optional full-width figure section. Full specs are in `references/layout-spec.md`.
 
-Key points at a glance:
-- **Default: A4 landscape, single section, 3 columns, target 2 pages** — use `sections: [{ properties: pageProps, children: [...page1, ...page2] }]`; A4 landscape size is `width:11906, height:16838, orientation:PageOrientation.LANDSCAPE` (docx-js swaps internally — pass portrait dimensions)
-- **Content density rule**: Use `np()` for plain body text; use `vd()` for variable definitions after first formula occurrence; use `mp()` for mixed text + OMML math. Fill to ~2 pages: if under, expand explanations and vd() lines; if over, trim np() body text first
-- A4 landscape, 0.5cm page margins all around
-- 3 columns, 0.5cm column spacing (4 columns for extreme cases)
-- Chinese: DengXian 5.5pt; English: Calibri 6.5pt (SIZE.b = 13 half-points); heading 8pt (SIZE.h = 16)
-- Minimum line spacing (single line, `line: 240`, tight mode)
-- **COLOR RULE — headings only**: section headings are color-coded; ALL body text (`np()`, `vd()`, `mp()`) must be black. Never apply color to body paragraphs.
-- **FORMULA RULE — entire expression in Math block**: when inserting a formula, the full expression including the `=` sign and BOTH sides must be inside a single `Math` block. Never split a formula so that the left side is in a TextRun and the right side is in Math.
-- **VARIABLE DEFINITION RULE**: after every formula's first appearance, add a `vd()` line defining each new symbol introduced.
-- **ONE FORMULA PER LINE**: never cram multiple formulas into one `mp()` call. Each formula gets its own line.
-- Tables: minimum width/height, zero cell padding
+Non-negotiable technical points (each one cost a rebuild in practice):
+- Page size is passed as **portrait** dimensions plus `orientation: LANDSCAPE`; passing landscape dimensions yields a portrait page and every table overflows.
+- Tables use `layout: TableLayoutType.FIXED`, explicit `columnWidths`, total ≤ 8.5 cm for a 3-column page with 1 cm margins.
+- Body ≥ 8pt. Code and table text may be 0.5pt smaller than body.
+- Chinese body text uses an `eastAsia` font (等线 / DengXian) and Latin text a matching sans (Calibri); set both on every run.
 
-### Step 4: Add diagrams and images
+### Step 5: Render, look, iterate
 
-Diagrams are often the most space-efficient way to convey structural or procedural concepts. Add them wherever a picture saves more words than it costs space.
+1. Build the docx, export to PDF and get the page count. On Windows use Word COM (see `references/layout-spec.md`); on other systems use LibreOffice.
+2. Render every page to PNG and **look at them**. Check: no table wider than its column, no heading orphaned at a column bottom, no half-empty last page, code blocks not wrapped mid-token, figures legible.
+3. Tune in this order: fix overflows → adjust column widths → adjust body size (BODY env var) and line spacing → adjust figure width. Stop when every page is full and readable.
+4. Do not deliver on the first render.
 
-**When to add a diagram**:
-- State machines / flow diagrams (e.g., process state transitions)
-- Memory layout / data structure diagrams (e.g., stack frame, page table, inode)
-- Algorithm step-by-step traces (e.g., page replacement, disk scheduling)
-- Architectural overviews (e.g., OS layers, TLB lookup flow)
-- Any concept where the spatial relationship matters
+### Step 6: Deliver
 
-**Sources for images** (only when screenshot mode is enabled — total PDF size < 25 MB; see Step 2):
-1. **Crop from lecture slides**: Extract a specific page from the PDF as an image, then crop to the relevant diagram. Use `pymupdf` (fitz) or `pdf2image`:
-   ```python
-   import fitz  # pymupdf
-   doc = fitz.open("lecture.pdf")
-   page = doc[page_num]
-   mat = fitz.Matrix(2, 2)  # 2x zoom for clarity
-   pix = page.get_pixmap(matrix=mat)
-   pix.save("diagram.png")
-   ```
-   Then crop with Pillow: `img.crop((x1,y1,x2,y2)).save("cropped.png")`
-2. **Draw using docx tables**: For simple box diagrams (memory layouts, state machines), use a borderless or lightly-bordered table with colored cell shading to represent boxes/nodes. This is vector-based and scales well.
-3. **ASCII-art in monospace**: For flow arrows and simple hierarchies, use a `Courier New` paragraph block.
+- Save `.docx` and `.pdf` next to the source material, plus the build script and any cropped figures in a `cheatsheet_assets/` folder so the sheet can be extended later.
+- Tell the user the page count, the font size, what was synthesized (not just listed), and what is not covered yet.
 
-**Embedding images in docx-js**:
-```javascript
-const { ImageRun } = require('docx');
-const imgData = fs.readFileSync('diagram.png');
-new Paragraph({
-  children: [new ImageRun({
-    data: imgData,
-    transformation: { width: 150, height: 80 },  // in points; tune to fit column
-    type: 'png'
-  })]
-})
-```
-Keep images narrow (≤ column width ≈ 150–170pt for 3-column A4 landscape) and use tight wrapping. Prefer width-constrained images over tall ones to save vertical space.
+## What "good" looks like
 
-**Self-drawn table diagrams** (when no slide image available):
-- Use colored `TableCell` with `ShadingType.SOLID` to draw boxes
-- Use arrow characters (→ ↔ ↑ ↓) in adjacent cells for flow
-- Example: memory layout = vertical table with colored rows for Text/Data/Heap/Stack
-
-### Step 5: Math formula handling
-
-Read `references/formula-handling.md` for formula insertion details.
-
-Key principles:
-- Use Word's native formulas (OMML), not images or plain text
-- Common templates: fractions, integrals, summations, matrices, Greek letters
-- Italicize variables and leave 1pt padding around them for readability
-
-### Step 6: Concept comparison tables
-
-For easily confused concepts (e.g., normal vs t distribution, biased vs unbiased estimators, precision vs recall), **strongly recommend tables**.
-
-Read `references/comparison-tables.md` for table templates.
-
-### Step 7: Space compression strategies
-
-If content doesn't fit after initial generation, adjust in this order (read `references/compression-tactics.md`):
-
-1. Cut textual redundancy → 2. Increase columns → 3. Reduce font size (English to 5pt, Chinese to 5pt) → 4. Switch to double-sided → 5. Suggest handwritten supplementation
-
-### Step 8: Review & deliver
-
-1. **PAGE COUNT CHECK (MANDATORY before delivery)**: Estimate the current page count of the generated .docx using this formula:
-   - A4 landscape usable height ≈ 568pt (210mm − 2×0.5cm margins)
-   - Line height at `line:240, lineRule:"auto"` with 6.5pt font ≈ **11.5pt per line**
-   - Lines per column per page ≈ 568 / 11.5 ≈ **49 lines**; section headings (before:60 DXA) add ~0.26 extra lines each
-   - Each `img()` counts as its rendered height in pt / 11.5 lines
-   - Total capacity for 2 pages, 3 columns = **6 × 49 ≈ 294 physical lines**
-   - **IMPORTANT — text wrapping**: long `np()` explanatory lines (80–150 chars) wrap to 2–3 physical lines each. Count *physical* lines, not logical entries. A single np() sentence ≈ 1.5–2 physical lines on average.
-   - Count all entries and their estimated physical lines; compare to 294 capacity
-   - If total < 294 physical lines: **under target** → expand before delivering
-
-   If it is under the target page count, **do not deliver yet** — first append a dedicated **"PROBLEM-SOLVING WALKTHROUGH"** section at the end of the cheatsheet (see rules below), then fill any remaining gap with `p()` sub-lines (intuition, edge cases, exam pitfalls, concept comparisons). Repeat until the target is reached.
-
-   **PROBLEM-SOLVING WALKTHROUGH section rules** (add when under page count):
-   - Add one `h("PROBLEM-SOLVING WALKTHROUGH", color)` heading at the end
-   - For each major topic covered in the cheatsheet, add a compact worked example: state the problem in one line, then show the solution steps as numbered `np()` / `p()` lines
-   - Use a different color (e.g. `"C55A11"`) to distinguish solution steps from regular content
-   - Keep each worked example to ≤5 lines total; prioritize topics most likely to appear on exams
-   - Only add this section once; if it already exists, expand existing examples instead of adding a new heading
-2. **Print simulation**: Generate a PDF preview and compare with an actual A4 sheet to check legibility
-3. **Save reminders**: **During generation, remind the user to back up after every formula insertion / image adjustment / table adjustment** (Word can crash)
-4. **Delivery**: Save the .docx to the same directory as the source materials (or the project workspace directory) and return it via `present_files`
-
-## Core principles
-
-1. **Space > aesthetics**: This is an exam tool. Cramming info in and keeping it legible is what makes a good cheatsheet. Don't chase design aesthetics.
-2. **User-first priority**: Ask exam rules first, then content, then layout.
-3. **Proactive save reminders**: Word can crash during dense formula/table operations. **Remind the user to back up after every key operation.**
-4. **Use visual hierarchy well**: Bold + colors + underlines + italics to separate key points; different colors for different chapters.
-5. **Honest trade-offs**: If content really doesn't fit, tell the user clearly and help them decide what to cut.
-6. **MANDATORY PAGE-FILL ENFORCEMENT**: After generating, you MUST estimate the page count. If under the target, you are REQUIRED to: **(a) first** append a "PROBLEM-SOLVING WALKTHROUGH" section with compact worked examples for each major topic (≤5 lines each); **(b) then** fill remaining space with `p()` sub-lines: intuition explanations, edge cases, exam pitfalls, concept comparisons. Keep expanding until the page count reaches the target. **An under-filled cheatsheet is a failure — it wastes exam-allowed space. Do not declare the cheatsheet done until it reaches the target page count.**
+- The first section is a map of the whole course that the slides never gave.
+- A reader can find "what does ImmSrc mean for a B-type" in under five seconds because it is in a table under a heading that says so.
+- Every ⚠ line is a mistake the user would otherwise make in the exam.
+- Nothing is on the sheet that the user would skim past.
 
 ## Reference files
 
-- `references/layout-spec.md` — Complete docx-js code template for A4 three-column layout
-- `references/formula-handling.md` — Methods for inserting math formulas in Word
-- `references/comparison-tables.md` — Concept comparison table templates
-- `references/compression-tactics.md` — Strategies when content won't fit
-- `references/extraction-prompts.md` — Prompts for extracting key points from PPTs/homework
+- `references/build-template.js` — complete, runnable docx-js build script; copy and fill in content
+- `references/layout-spec.md` — page geometry, fonts, sizes, colours, Word COM / LibreOffice export, page-count tuning
+- `references/extraction-prompts.md` — how to turn slides into synthesized content; keep / cut lists
+- `references/comparison-tables.md` — when and how to use tables
+- `references/formula-handling.md` — Word-native OMML math for formula-heavy courses
+- `references/compression-tactics.md` — what to do when content genuinely exceeds an enforced page limit
 
 ## Dependencies
 
-- `docx` npm package (for generating .docx)
-- `pandoc` / `extract-text` (for reading existing documents)
-- LibreOffice (for PDF previews)
+- `docx` npm package (v9+)
+- Python with `pymupdf` and `Pillow` for slide text / figure extraction
+- `pdftotext` (poppler) optional
+- PDF export: Microsoft Word (via COM on Windows) or LibreOffice

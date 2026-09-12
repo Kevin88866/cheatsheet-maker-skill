@@ -1,125 +1,64 @@
-# Extracting Key Points from PPTs / Homework / Notes
-
-This file guides Claude on how to refine raw materials into cheatsheet-worthy content.
+# Turning slides into cheatsheet content
 
 ## Core philosophy
 
-**What goes on a cheatsheet isn't "what I understand" — it's "the one line of prompt I need when I see a question on exam day".**
+The sheet is not "what the slides said". It is **the shortest thing a stressed reader needs to find the answer**. That means you reorganize, merge and explain connections the slides left implicit. Transcribing slides in order produces a document the user already has.
 
-## Extracting from PPTs
+## Read first, write second
 
-### What goes into the cheatsheet
+Extract every source file to text and read all of it before drafting a single section. Only then can you see that "abstraction layers" appears in three chapters, or that six scattered "unlike ARM…" remarks are really one comparison table.
 
-1. **Definitions and formulas**: One-sentence definition + core formula for each new concept
-2. **Theorems/properties**: Conditions + conclusion
-3. **Algorithms/procedures**: Step skeleton (no explanation)
-4. **Comparison tables**: A vs B comparisons from the slides
-5. **Counterexamples / common mistakes**: Pitfalls the instructor specifically emphasized
-6. **Key conclusions from diagrams**: Diagrams themselves don't fit, but put the conclusions behind them in
-7. **Answer frameworks for open questions** from the slides
+## Synthesis moves (do these deliberately)
 
-### What stays out
+| Move | When | Result |
+|------|------|--------|
+| **Unify** | the same concept is introduced in several chapters with different framing | one table placing every version on one axis, with a sentence on how they relate |
+| **Chain** | a design decision has several consequences listed as separate facts | "Principle → consequence → consequence" bullet |
+| **Rule instead of table** | a truth table follows from a few rules | "how to derive it" bullets, keep the table only for checking |
+| **Side-by-side** | the course constantly contrasts two things (RISC-V vs ARM, fixed vs floating, Moore vs Mealy) | one comparison table, not scattered remarks |
+| **Record the trap** | the lecturer says "note", "non-intuitive", "common mistake", or a sign convention differs between systems | a ⚠ line |
+| **Map the course** | always | an opening overview table: every chapter, what layer / stage it covers, how it connects |
 
-1. Long-form explanations
-2. Historical background / motivating stories
-3. Derivation intermediate steps (keep only starting and ending points)
-4. Duplicate content (same concept across multiple slides → keep only the tightest phrasing once)
+## Keep
 
-### Extraction prompt template
+- Definitions, one line each, with the term in bold.
+- Formulas, with every symbol defined once.
+- Encodings, opcode tables, register conventions, control-signal tables — as tables.
+- Procedures as numbered steps (① ② ③ inline is fine).
+- Boundary rules: ranges, alignment, what is sign-extended vs zero-extended.
+- Explicitly examinable trivia the lecturer flagged (e.g. "one or two exam questions on the state of the industry").
 
-Internal instruction for Claude:
-```
-After reading the PPT, for each slide:
-1. What is this slide's topic? (If transition / intro only, skip)
-2. Any formulas? → Extract all formulas + meaning of each symbol
-3. Any definitions? → Compress to one sentence
-4. Any tables? → Keep
-5. Any emphasis (bold/red/!/keyword "important") → Must keep
-6. Can the rest be summarized in one line?
-```
+## Cut
 
-## Extracting from homework
+- Worked numeric examples (keep the procedure; the numbers are noise). Add them only if the user asks or the exam reuses homework.
+- Motivational and historical prose beyond a one-line timeline.
+- Anything already implied by a table on the sheet.
+- Repeated "unlike X…" remarks once the comparison table exists.
+- Lead-in phrases, restated headings, hedges.
+- Invented abbreviations. Write the word.
 
-### Strategy
-
-Homework variants frequently appear on exams, so:
-
-1. **Categorize**: Group by topic ("Ch 3 - Hypothesis Testing")
-2. **Identify problem types**:
-   - Ch 3 - One-sample t-test
-   - Ch 3 - Two-sample t-test
-   - Ch 3 - Paired t-test
-3. **Keep only the solution skeleton for each type**:
-   ```
-   Example: Paired t-test
-   Steps:
-   1. d_i = x_i - y_i
-   2. d̄ = Σd_i/n, s_d = √Σ(d_i-d̄)²/(n-1)
-   3. t = d̄/(s_d/√n), df = n-1
-   4. Reject H_0 if |t| > t_{α/2,n-1}
-   ```
-
-### Problems the user doesn't understand
-
-**User says**: "I don't get this one" → **Claude does**:
-1. Ask the user for the problem
-2. Provide a detailed solution
-3. **Only put the "template" in the cheatsheet**; the user digests the full solution themselves
-
-## Extracting from notes
-
-### User's notes are usually already structured
-
-- Use their chapter organization
-- But **heavily compress the text** (their notes were written for themselves; the cheatsheet is for a self 30 seconds from now)
-
-### Signals of "high weight" content
-
-- Things they starred, circled, exclamation-marked
-- Repeatedly appearing concepts
-- Their own notations like "important" / "will test"
-
-## Interactive extraction workflow
-
-After the user uploads materials, Claude's workflow:
-
-### Step 1: Quick skim, give user a volume estimate
+## Per-slide checklist (internal)
 
 ```
-"I read through your PPTs (78 slides) and 3 homework sets. Estimated content:
-- Descriptive stats: ~15 core formulas
-- Hypothesis testing: ~6 tests + 3 common pitfalls
-- Regression: ~8 formulas + 2 comparison tables
-- Example skeletons: ~12
-
-This is tight on single-sided A4 3-column. Options:
-(A) Keep only PPT-highlighted cores + homework templates → fits single-sided
-(B) Full organization → recommend double-sided
-Which do you prefer?"
+For each slide:
+1. Topic? (transition / agenda slide → skip)
+2. Does it introduce a term, formula or rule? → one line, bold the term
+3. Is it a table or list of variants? → native docx table
+4. Does it contrast two things? → mark for the comparison table
+5. Does it say "note", "non-intuitive", "unlike", "common mistake"? → ⚠ candidate
+6. Is it a worked example? → extract the procedure only
+7. Is it a figure whose layout IS the content? → crop candidate
 ```
 
-### Step 2: After user chooses, provide chapter outline
+## Language
 
-```
-"Draft outline:
-[Ch1 Descriptive] Mean/variance/quantile formulas
-[Ch2 Distributions] Normal/t/chi-square/F comparison
-[Ch3 Hypothesis Testing] 6-test comparison + decision flow
-[Ch4 Regression] OLS formula + diagnostics + example templates
+If the user writes in Chinese, the body is Chinese and these stay English: instruction mnemonics, signal and register names, standard terms (ISA, load-store, critical path, caller-saved, IEEE 754…), anything the exam paper itself will print in English. Do not translate code or tables of encodings.
 
-Ok to proceed? If you want to add/remove chapters, tell me."
-```
+## Before generating, self-audit
 
-### Step 3: After generation, have user review
-
-Generate docx + PDF preview. Have user check:
-- Any empty spots that need more content?
-- Any crowded spots that need cutting?
-
-## Content quality checklist
-
-Before generating, self-audit:
-- [ ] Are all **variables defined clearly** for each formula? (on exam day you might forget the symbols)
-- [ ] Are **applicability conditions** written for each method? (knowing the formula but not when to use it = wasted space)
-- [ ] Are comparison items (e.g., multiple distributions) in tables?
-- [ ] Is there a **key-step skeleton** preserved (not just formulas without workflow)?
+- [ ] Is there an opening map of the whole course?
+- [ ] Did every scattered comparison become a table?
+- [ ] Does every formula have its symbols defined once?
+- [ ] Is every ⚠ line an actual mistake the reader could make?
+- [ ] Is there any bullet that only restates a heading or a table? Delete it.
+- [ ] Are there worked examples the user did not ask for? Delete them.
