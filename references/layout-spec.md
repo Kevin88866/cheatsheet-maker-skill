@@ -6,98 +6,93 @@ The template that implements all of this is `build-template.js`. This file expla
 
 | Parameter | Value | Notes |
 |-----------|-------|-------|
-| Paper | A4 landscape | pass `width: 11906, height: 16838, orientation: LANDSCAPE` — **portrait numbers**; docx-js swaps them. Passing 16838×11906 plus the flag gives a portrait page. |
-| Margins | 1 cm = 560 DXA | all sides; 0.5 cm looks cramped when printed |
+| Paper | A4 landscape | pass `width: 11906, height: 16838, orientation: LANDSCAPE` — **portrait numbers**; docx-js swaps them. |
+| Margins | 0.7 cm (template default) | 1 cm when pages are not limited; never below 0.6 cm (printers clip) |
 | Columns | 3, `separate: true` | a thin rule between columns helps scanning |
-| Column gap | 0.6 cm = 340 DXA | |
-| Usable column width | ≈ 8.84 cm = 5013 DXA | tables must total ≤ 8.5 cm |
-
-Sections, in order:
-1. Title — single column, continuous.
-2. Body — 3 columns, continuous.
-3. Optional full-width figure — single column, continuous, **last**. Word balances the body columns above it.
+| Column gap | 0.4 cm | 0.6 cm when pages are not limited |
+| Usable column width | ≈ 9.2 cm at 0.7 / 0.4 | the template scales table weights to it |
 
 ## Fonts
 
-| Element | Font | Size (half-points) |
-|---------|------|--------------------|
-| Chapter heading (`h1`) | Microsoft YaHei Bold, white on chapter colour | BODY + 5 |
-| Sub-heading (`h2`) | Microsoft YaHei Bold, chapter colour, bottom rule | BODY + 2 |
-| Body Latin | Calibri | BODY (default 17 = 8.5pt; 18 = 9pt) |
-| Body CJK | 等线 (DengXian) via `eastAsia` | BODY |
-| Code / mnemonics / bit fields | Consolas | BODY − 1 |
-| Table text | same as body | BODY − 1 |
-| Formula line | body, slightly larger | BODY + 1 |
+| Element | Latin | Chinese (CJK=1) | Size (half-points) |
+|---------|-------|-----------------|--------------------|
+| Chapter bar (`h1`) | Segoe UI bold, white on colour | Microsoft YaHei bold | BODY + 4 |
+| Sub-heading (`h2`) | Segoe UI bold, chapter colour | Microsoft YaHei bold | BODY + 2 |
+| Body | Calibri | 等线 (DengXian) via `eastAsia` | BODY (16 = 8pt floor) |
+| Code / mnemonics | Consolas | Consolas | BODY − 1 |
+| Table text | Calibri | 等线 | BODY − 1 |
+| √ ⊕ ⌈ ⌉ | Cambria Math (Calibri draws them badly) | same | — |
 
 Rules:
 - **BODY never below 16 (8pt).**
-- Set `font: { ascii, hAnsi, eastAsia, cs }` on every run, otherwise CJK falls back to SimSun and looks wrong.
-- Inline markup handled by the template: `**bold**` for key terms, `` `code` `` for mnemonics and signals.
-- Body text is black. Colour is reserved for headings, the ⚠ trap line (yellow fill, red mark) and code (dark blue).
+- Set `font: { ascii, hAnsi, eastAsia, cs }` on every run, otherwise CJK falls back to SimSun.
+- Inline markup: `**bold**`, `!!red bold!!`, `` `code` ``, `_{subscript}`, `^{superscript}` (nesting inside bold works; no nested braces).
+- Possessives in English terms inside Chinese text: use a straight apostrophe (`Occam's`), curly ones may render full-width.
+
+## Chinese (CJK) text — three Word quirks
+
+1. **Line height.** Under "auto" spacing Word gives CJK fonts about 1.3× leading (8pt DengXian → 10.4pt lines) even though DengXian's own metrics are 1.04 em. Use **exact** spacing: 192 twips (9.6pt) for 8pt body, 180 for 7.5pt table text. Check superscripts are not clipped in the render.
+2. **Full-width punctuation is never compressed.** `characterSpacingControl = compressPunctuation` in settings.xml had no effect in testing. Convert （），；： to half-width plus a space (`hwPunct()` in the template); keep 。 and 、. This saves about half an em per mark.
+3. **Automatic CJK/Latin spacing.** Word adds space between Chinese and Latin text; the template turns it off (`autoSpaceDE/DN = 0`) and relies on spaces typed in the content.
+
+Chinese content is not automatically shorter than English: full-width characters, mixed terms and punctuation made a translated sheet about 15% longer. Plan for it.
 
 ## Colours
 
-One colour per chapter, used for its `h1` bar, `h2` text and table header fill. Defaults in the template: slate, navy, green, brown, purple, teal, dark red. Keep them dark enough for white text.
+One colour per chapter, used for its `h1` bar, `h2` text and table header fill. Keep them dark enough for white text. Body text is black; colour is reserved for headings, ⚠ lines and code.
 
 ## Spacing
 
-- Paragraphs: `line: 240` (single), `after: 14–20`.
-- `h1`: `before: 90, after: 40`, `keepNext`.
-- `h2`: `before: 70, after: 20`, `keepNext`.
-- Bullets: hanging indent 170 DXA with a tab stop, "•" glyph.
-- Code blocks: light grey fill, `line: 220`.
+- Latin: `line: 230` auto. CJK: exact 192.
+- Paragraph `after: 6`; `h1` `before 60 / after 24`; `h2` `before 40 / after 12`, both `keepNext`.
+- Bullets: hanging indent 150 DXA with a tab stop.
 
 ## Tables
 
-- `layout: TableLayoutType.FIXED`, explicit `columnWidths` (DXA = cm × 567), table `width` = sum of columns.
-- Cell margins 8 / 8 / 25 / 25 DXA. Thin grey borders (`size: 4, color: 999999`).
-- Header row: chapter colour fill, white bold text, `tableHeader: true`.
-- Zebra rows (`F7F7F7`) for tables longer than ~6 rows.
-- Rows `cantSplit`; cell paragraphs `keepNext` so a short table stays in one column.
-- Monospace columns for encodings / mnemonics; centre narrow numeric columns.
+- `layout: TableLayoutType.FIXED`, explicit `columnWidths`; the template takes relative weights.
+- Cell margins 4 / 4 / 28 / 28 DXA; thin grey borders; header row in chapter colour with `tableHeader: true` (repeats when split).
+- Rows `cantSplit`. Tables with ≤ `SPLIT_ROWS` rows (default 4) are kept whole; longer tables may break between rows so they do not jump a whole column and leave a gap.
+- Put the column the reader searches by first; widen the column that holds the longest token.
 
 ## Figures
 
-- Crop from slides with pymupdf at ≥ 200 dpi, then Pillow `crop`. Save PNGs into `cheatsheet_assets/` next to the output.
-- Inline figure width ≤ 4 cm. Full-width figure 17–20 cm in the final single-column section.
+- Crop from slides with pymupdf at ≥ 200 dpi, then Pillow `crop`. Save PNGs into `cheatsheet_assets/`.
+- Inline figure width ≤ 4 cm. Full-width figure 17–20 cm in a final single-column section.
 - Never crop slide tables; rebuild them.
 
 ## Build and export
 
 ```bash
-BODY=17 LINE=240 IMGW=20 node build.js      # BODY half-points, LINE spacing, IMGW figure width in cm
+node build.js            # Latin
+CJK=1 node build.js      # Chinese body
+BODY=17 LINE=200 node build.js   # overrides
 ```
 
-Windows (Word installed, no LibreOffice) — `topdf.ps1`:
+Windows (Word installed) — `topdf.ps1`:
 ```powershell
 param($in,$out)
-$w = New-Object -ComObject Word.Application; $w.Visible=$false
-$d = $w.Documents.Open($in)
-"PAGES=" + $d.ComputeStatistics(2)
-$d.ExportAsFixedFormat($out, 17)
-$d.Close(0); $w.Quit()
+$w = New-Object -ComObject Word.Application; $w.Visible=$false; $w.DisplayAlerts = 0
+try {
+  $d = $w.Documents.Open($in, $false, $true)
+  "PAGES=" + $d.ComputeStatistics(2)
+  $d.ExportAsFixedFormat($out, 17)
+  $d.Close(0)
+} finally { $w.Quit() }
 ```
-```bash
-powershell -ExecutionPolicy Bypass -File topdf.ps1 "D:\path\sheet.docx" "D:\path\sheet.pdf"
-```
-If the export throws a COM error, a previous Word instance still holds the file; rerun.
+Never kill WINWORD processes you did not start; a Word instance killed mid-export can make the next hidden instance hang on a recovery dialog.
 
-macOS / Linux:
-```bash
-soffice --headless --convert-to pdf sheet.docx
-```
+macOS / Linux: `soffice --headless --convert-to pdf sheet.docx`
 
-Render pages for inspection:
-```python
-import fitz
-d = fitz.open("sheet.pdf")
-for i, p in enumerate(d): p.get_pixmap(dpi=110).save(f"pg{i+1}.png")
+Check fill and render pages:
+```bash
+python measure.py sheet.pdf ./png     # prints where each column's text ends, saves pgN.png
 ```
 
 ## Page-count tuning loop
 
-1. Build at BODY=17. Note pages and how full the last page is.
-2. Last page under ~60% full → raise BODY to 18 (or LINE to 264) and rebuild. If that is not enough, grow the trailing figure instead.
-3. Last page overflows by a few lines → lower LINE to 230 or trim one low-value bullet; do not drop below BODY=16.
-4. A full-width figure that lands on its own page: reduce IMGW until it fits below the balanced columns, or accept the extra page if the figure is essential.
-5. Always look at the rendered PNGs after every change; page count alone hides overflowing tables.
+1. Build, export, run `measure.py`, look at every page.
+2. **Column gaps first.** A column ending 40+ pt above the others means a heading + table chain jumped. Fixes, in order: shorten one or two lines just before the chain; let the table split (lower `SPLIT_ROWS`); restructure the table (fewer columns, shorter cells); reorder sections so a table does not land at a column bottom.
+3. Over the limit → cut low-value items (see `compression-tactics.md`). Never compress wording.
+4. Under the limit → restore knowledge points cut earlier; only then consider BODY 17 / looser LINE.
+5. A bullet split across the front/back page break: pass `keep = true` to that one `b()`. Global `KEEP=1` costs a lot of space.
+6. Always look at the rendered PNGs after every change; page count alone hides overflowing tables and unparsed markup.

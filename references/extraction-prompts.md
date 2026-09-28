@@ -2,63 +2,66 @@
 
 ## Core philosophy
 
-The sheet is not "what the slides said". It is **the shortest thing a stressed reader needs to find the answer**. That means you reorganize, merge and explain connections the slides left implicit. Transcribing slides in order produces a document the user already has.
+The sheet is not "what the slides said". It is **the shortest thing a stressed reader needs to find the answer — and can understand without having the slides open**. Reorganize, merge, and explain connections the slides left implicit. Transcribing slides in order produces a document the user already has; compressing it into fragments produces one nobody can read.
 
 ## Read first, write second
 
-Extract every source file to text and read all of it before drafting a single section. Only then can you see that "abstraction layers" appears in three chapters, or that six scattered "unlike ARM…" remarks are really one comparison table.
+Extract every source file to text and read all of it before drafting. Formulas are often images, so render those pages and look at them. Also read homework, in-class activities, marked discussion notes, labs, announcements and forum answers: they show what the instructor actually asks and which topics are flagged as examinable.
 
 ## Synthesis moves (do these deliberately)
 
 | Move | When | Result |
 |------|------|--------|
-| **Unify** | the same concept is introduced in several chapters with different framing | one table placing every version on one axis, with a sentence on how they relate |
-| **Chain** | a design decision has several consequences listed as separate facts | "Principle → consequence → consequence" bullet |
-| **Rule instead of table** | a truth table follows from a few rules | "how to derive it" bullets, keep the table only for checking |
-| **Side-by-side** | the course constantly contrasts two things (RISC-V vs ARM, fixed vs floating, Moore vs Mealy) | one comparison table, not scattered remarks |
-| **Record the trap** | the lecturer says "note", "non-intuitive", "common mistake", or a sign convention differs between systems | a ⚠ line |
-| **Map the course** | always | an opening overview table: every chapter, what layer / stage it covers, how it connects |
+| **Unify** | the same concept appears in several chapters | one table placing every version on one axis |
+| **Chain** | a decision has several consequences | "principle → consequence → consequence" |
+| **Rule instead of table** | a table follows from a few rules | "how to derive it" bullets |
+| **Side-by-side** | the course keeps contrasting two things | one comparison table |
+| **Record the trap** | the lecturer says "note", or two slide decks use different conventions (e.g. confusion-matrix row order) | a ⚠ line |
+| **Map the course** | always | an opening overview table of every model / chapter |
+| **Explain the why** | a conclusion without its reason | add the reason in the same sentence |
 
 ## Keep
 
-- Definitions, one line each, with the term in bold.
-- Formulas, with every symbol defined once.
-- Encodings, opcode tables, register conventions, control-signal tables — as tables.
-- Procedures as numbered steps (① ② ③ inline is fine).
-- Boundary rules: ranges, alignment, what is sign-extended vs zero-extended.
-- Explicitly examinable trivia the lecturer flagged (e.g. "one or two exam questions on the state of the industry").
+- Definitions, one sentence each, key term in bold, every symbol explained on first use.
+- Formulas with every symbol defined once.
+- Comparison / encoding / metric tables.
+- Procedures as numbered steps (① ② ③).
+- Everything the instructor flagged as examinable, however trivial it looks: history timelines (as a table with every year from the slides), definitions from intro lectures, ethics points.
+- Calculations the instructor says were done in class and may be tested: question, answer, one-line reason, in a table.
 
 ## Cut
 
-- Worked numeric examples (keep the procedure; the numbers are noise). Add them only if the user asks or the exam reuses homework.
-- Motivational and historical prose beyond a one-line timeline.
+- Worked examples, "answers to check against", homework answers (keep the procedure only) — unless the user asks.
+- References to an example by its label ("the XYZ table", "F02", "HW3") — restate the setup or drop it.
+- Motivational and historical prose beyond what the instructor flagged.
 - Anything already implied by a table on the sheet.
-- Repeated "unlike X…" remarks once the comparison table exists.
 - Lead-in phrases, restated headings, hedges.
-- Invented abbreviations. Write the word.
+- Invented abbreviations and telegraphic fragments.
 
 ## Per-slide checklist (internal)
 
 ```
 For each slide:
 1. Topic? (transition / agenda slide → skip)
-2. Does it introduce a term, formula or rule? → one line, bold the term
-3. Is it a table or list of variants? → native docx table
-4. Does it contrast two things? → mark for the comparison table
-5. Does it say "note", "non-intuitive", "unlike", "common mistake"? → ⚠ candidate
-6. Is it a worked example? → extract the procedure only
-7. Is it a figure whose layout IS the content? → crop candidate
+2. Introduces a term, formula or rule? → one full sentence, bold the term, define symbols
+3. A table or list of variants? → native docx table
+4. Contrasts two things? → comparison table
+5. Says "note", "common mistake", or conflicts with another deck? → ⚠ candidate
+6. A worked example? → extract the procedure only
+7. A figure whose layout IS the content? → crop candidate
 ```
 
 ## Language
 
-If the user writes in Chinese, the body is Chinese and these stay English: instruction mnemonics, signal and register names, standard terms (ISA, load-store, critical path, caller-saved, IEEE 754…), anything the exam paper itself will print in English. Do not translate code or tables of encodings.
+If the user wants Chinese, the body is Chinese and these stay English: model and algorithm names, metric names, standard terms the exam prints in English (overfitting, margin, kernel, entropy…), code and formulas.
 
-## Before generating, self-audit
+## Self-audit before generating
 
 - [ ] Is there an opening map of the whole course?
+- [ ] Could someone who skipped the lectures understand every line? (symbols defined, no slide labels, reasons given)
+- [ ] Is any line a telegraphic fragment? Rewrite it as a sentence.
 - [ ] Did every scattered comparison become a table?
-- [ ] Does every formula have its symbols defined once?
 - [ ] Is every ⚠ line an actual mistake the reader could make?
-- [ ] Is there any bullet that only restates a heading or a table? Delete it.
+- [ ] Are all instructor-flagged topics present?
 - [ ] Are there worked examples the user did not ask for? Delete them.
+- [ ] Were all kept numbers recomputed, not copied?

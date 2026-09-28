@@ -1,11 +1,11 @@
 ---
 name: cheatsheet-maker
-description: Create exam cheatsheets (crib sheets / reference sheets) as A4 landscape, 3-column Word (.docx) + PDF, built for fast lookup under exam stress. Use this skill whenever the user mentions "cheatsheet", "crib sheet", "reference sheet", "exam cheatsheet", "A4 summary", "study guide", or uploads lecture slides / PDFs / notes and wants them condensed for an exam. Core rules — readable typography hierarchy over cramming, synthesized summaries over slide transcription, tables over prose, no filler words, no invented abbreviations, no worked examples unless asked, page count driven by content, and the font grows (never shrinks below 8pt) to fill the last page.
+description: Create exam cheatsheets (crib sheets / reference sheets) as A4 landscape, 3-column Word (.docx) + PDF, built for fast lookup under exam stress. Use this skill whenever the user mentions "cheatsheet", "crib sheet", "reference sheet", "exam cheatsheet", "A4 summary", "study guide", or uploads lecture slides / PDFs / notes and wants them condensed for an exam. Core rules — every line readable without the slides (complete sentences, symbols defined, no cryptic references), synthesized summaries over slide transcription, tables over prose, no invented abbreviations, no worked examples unless asked, instructor-flagged topics never cut, page limit met by cutting low-value items rather than compressing wording, body font never below 8pt.
 ---
 
 # Cheatsheet Maker
 
-Turns lecture slides, notes and homework into a print-ready exam cheatsheet. The sheet is something the user scans in five seconds under stress, so **findability and readability beat density**. Most exams that allow a cheatsheet allow several pages; a sheet nobody can read wastes every one of them.
+Turns lecture slides, notes and homework into a print-ready exam cheatsheet. The sheet is something the user scans in five seconds under stress, so **findability and readability beat density**. A line the user cannot understand in the exam is wasted space, however much information it packs.
 
 ## Trigger scenarios
 
@@ -14,82 +14,93 @@ Turns lecture slides, notes and homework into a print-ready exam cheatsheet. The
 - User uploads lecture PDFs / PPTs and asks for a summary to print
 - User asks to extend an existing cheatsheet with new chapters
 
-## The eight rules (read before writing anything)
+## The ten rules (read before writing anything)
 
-1. **Synthesize, don't transcribe.** The slides are the source, not the outline. When the same idea appears in three places (e.g. "layers of abstraction" in the intro chapter, the ISA chapter and the design-flow chapter), write **one** unified table or list and say how the pieces connect. When a design has a cause and consequences, write "principle → consequence 1 → consequence 2" instead of listing the consequences as unrelated facts. Add "how to derive X without memorizing the table" notes where a rule exists.
-2. **One fact per bullet, no filler.** Delete lead-ins ("note that", "in this case", "it is important to"), delete restatements of the slide title, delete the second half of any sentence that only rephrases the first half. If a bullet needs a second sentence, it is usually two bullets.
-3. **No invented abbreviations.** Use the course's own names (ISA, CPI, CLA, ALU) and spell everything else out. "Instr", "comb.", "reg." and similar save nothing and cost a re-read.
-4. **Tables for anything with two or more dimensions.** Encodings, control signals, register conventions, A-vs-B comparisons, flag semantics, "when to use which" all go in tables. Prose is for a single line of reasoning only.
-5. **Typography hierarchy, several fonts.** Coloured heading bars for chapters, coloured underlined sub-headings, a body sans font, a monospace font for code / mnemonics / bit fields / signal names, bold for the key term in each bullet, a highlighted ⚠ line for exam traps. One font at one size is unreadable no matter how good the content is.
-6. **No worked numeric examples by default.** Keep the rule, the procedure and the trap; drop the numbers. Add examples only when the user asks, or when the exam is known to reuse homework variants.
-7. **Page count is driven by content; the font is driven by page count.** Body text starts at 8.5–9pt and **never goes below 8pt**. If the content ends part-way down the last page, **increase** the font or line spacing until the pages are full. Do not pad with extra content to fill space unless the user asks.
-8. **Language follows the user.** If the user writes in Chinese, the body is Chinese with technical terms kept in English (instruction mnemonics, signal names, standard terms like load-store, critical path, callee-saved). Otherwise English throughout.
+1. **Synthesize, don't transcribe.** The slides are the source, not the outline. When the same idea appears in several places, write **one** unified table or list and say how the pieces connect. Write "principle → consequence → consequence" instead of unrelated facts. Add "how to derive X" notes where a rule exists.
+2. **Readable without the slides.** Every bullet is a complete statement that a reader who never opened the slides understands:
+   - define every symbol and acronym on first use ("ξ (slack) = how far point i crosses the margin", "residual = actual − predicted");
+   - never refer to an example by its slide or homework label ("the XYZ table", "F02", "the 30-point example") without restating its setup;
+   - give the reason after the conclusion ("F1 uses the harmonic mean because it is pulled down by the smaller of P and R").
+3. **Never compress wording to fit.** When the sheet is too long, **cut a whole low-value item**, not letters from every item. Telegraphic fragments ("C 大 → 调小 C", "0–1 在 margin 内") look efficient and are unreadable under stress. See `references/compression-tactics.md` for what to cut first.
+4. **No invented abbreviations.** Use the course's own names (ISA, CPI, SVM, ROC) and spell everything else out.
+5. **Tables for anything with two or more dimensions.** Comparisons, encodings, "when to use which", metric definitions, timelines. Prose is for a single line of reasoning only.
+6. **Typography hierarchy, several fonts.** Coloured chapter bars, coloured underlined sub-headings, sans body, monospace for code / mnemonics, bold key term in each bullet, highlighted ⚠ line for exam traps.
+7. **No worked examples by default.** Keep the rule, the procedure and the trap; drop the numbers. This includes "answers to check against", homework answers and numeric walk-throughs of class examples. Exceptions: the user asks for them, or the instructor says specific in-class calculations are examinable — then give question, answer and a one-line reason in a table, nothing more.
+8. **Instructor-flagged topics are never "low value".** If the instructor says a topic will be tested (e.g. "the introduction weeks may be tested"), cover it fully even if it looks like trivia: every year and name in a history timeline (as a table), every definition, every ethics point. Search announcements, forum answers and schedules for these statements before planning.
+9. **Page count is driven by content and the user's limit; the font never goes below 8pt.** If an exam limit is known ("one sheet, double-sided" = 2 pages), fill exactly that. When space frees up (for example after the user asks to drop examples), **first restore knowledge points that were cut earlier**; enlarge the font or line spacing only if the user wants that or nothing worth adding is left.
+10. **Language follows the user.** A user writing in Chinese usually wants Chinese body text with technical terms in English (model names, metric names, standard terms the exam paper prints in English); confirm once if a global instruction says otherwise, then remember it. Chinese text needs the CJK layout settings in `references/layout-spec.md`.
 
 ## Workflow
 
 ### Step 1: Confirm scope and constraints (only what is not already known)
 
-- Which chapters / files are in scope? Is there an instructor list of examinable topics?
-- Exam rules: page limit? printed allowed? colour allowed? Language preference?
+- Which chapters / files are in scope? Is there an instructor list of examinable topics? Check the course schedule, announcements and forum answers (Piazza, Canvas) yourself first.
+- Exam rules: page limit? single or double-sided? printed allowed? Language?
 - Is an earlier cheatsheet being extended? If so, reuse its build script and style.
 
-Ask these in one message. Do not ask again later.
+Ask what you could not find in one message. Do not ask again later.
 
 ### Step 2: Read everything, then plan the structure yourself
 
-1. Extract slide text (`pdftotext -layout`, or pymupdf). Read all of it before writing; partial reading produces slide-order transcription.
-2. Draft the section list **by topic, not by slide order**. Merge overlapping material across chapters. Typical opening section: an overview table that places every chapter on one mental map.
-3. For each section decide the form first: table, bullet list, code block, formula, or figure. See `references/extraction-prompts.md` for what to keep and what to cut.
-4. Mark the exam traps (things the lecturer flagged, easy-to-confuse pairs, sign conventions) — these become ⚠ lines.
+1. Extract slide text (`pdftotext -layout`, or pymupdf). Formulas are often images: render those pages and look at them. Read all of it before writing.
+2. Also read homework, in-class activities, marked discussion documents and interactive labs: they show what the instructor actually asks.
+3. Draft the section list **by topic, not by slide order**. Open with an overview table that places every model / chapter on one map.
+4. For each section decide the form first: table, bullet list, formula, or figure. See `references/extraction-prompts.md`.
+5. Mark the exam traps (lecturer's "note", easy-to-confuse pairs, conflicting conventions between slide decks) — these become ⚠ lines.
+6. Verify every number you keep by recomputing it (a short script), not by copying it from a slide.
 
 ### Step 3: Choose figures
 
-A figure earns its place only when the spatial relationship is the content (a datapath, a state machine, a memory layout). Crop it from the slides at ≥200 dpi with pymupdf + Pillow. Slide **tables** must be rebuilt as native docx tables; cropped tables are unreadable at column width.
+A figure earns its place only when the spatial relationship is the content. Crop at ≥ 200 dpi with pymupdf + Pillow. Slide **tables** are rebuilt as native docx tables.
 
 - Small figures (≤ 4 cm wide) go inline in a column.
-- Large figures (a full datapath) go in a **single-column continuous section at the very end** of the document; Word balances the preceding columns above it. Never put a full-width figure mid-document — it leaves a gap wherever it does not fit.
+- Large figures go in a **single-column continuous section at the very end**.
 
 ### Step 4: Build with the template
 
-Copy `references/build-template.js` and fill in the content section. It already provides: `h1`, `h2`, `b` (bullet), `warn` (⚠ trap line), `code`, `formula`, `table`, `img`, an inline markup parser (`**bold**`, `` `code` ``), fixed-layout tables, the title section, the 3-column body section and the optional full-width figure section. Full specs are in `references/layout-spec.md`.
+Copy `references/build-template.js` and fill in the content section. It provides `h1`, `h2`, `b` (bullet), `warn` (⚠ trap line), `formula`, `code`, `table`, `img`, inline markup (`**bold**`, `` `code` ``, `!!red!!`, `_{sub}`, `^{sup}`), splittable long tables, CJK settings and the Word post-processing. Specs are in `references/layout-spec.md`.
 
 Non-negotiable technical points (each one cost a rebuild in practice):
-- Page size is passed as **portrait** dimensions plus `orientation: LANDSCAPE`; passing landscape dimensions yields a portrait page and every table overflows.
-- Tables use `layout: TableLayoutType.FIXED`, explicit `columnWidths`, total ≤ 8.5 cm for a 3-column page with 1 cm margins.
-- Body ≥ 8pt. Code and table text may be 0.5pt smaller than body.
-- Chinese body text uses an `eastAsia` font (等线 / DengXian) and Latin text a matching sans (Calibri); set both on every run.
+- Page size is passed as **portrait** dimensions plus `orientation: LANDSCAPE`.
+- Tables use `layout: TableLayoutType.FIXED` and explicit `columnWidths`; the template scales relative weights to the column width.
+- Body ≥ 8pt. Table and code text may be 0.5pt smaller.
+- Chinese: `eastAsia` font 等线 (DengXian), Latin Calibri, headings Microsoft YaHei; **exact** line spacing (Word adds ~30% leading to CJK fonts under auto spacing); half-width （），；： (Word does not compress full-width punctuation). The template's `CJK=1` mode does all of this.
 
 ### Step 5: Render, look, iterate
 
-1. Build the docx, export to PDF and get the page count. On Windows use Word COM (see `references/layout-spec.md`); on other systems use LibreOffice.
-2. Render every page to PNG and **look at them**. Check: no table wider than its column, no heading orphaned at a column bottom, no half-empty last page, code blocks not wrapped mid-token, figures legible.
-3. Tune in this order: fix overflows → adjust column widths → adjust body size (BODY env var) and line spacing → adjust figure width. Stop when every page is full and readable.
-4. Do not deliver on the first render.
+1. Build, export to PDF (Word COM on Windows, LibreOffice elsewhere), get the page count.
+2. Run `references/measure.py <pdf>`: it prints where each column's text ends. A column ending far above the bottom means a heading + table block jumped to the next column; fix it (let long tables split, shorten a line just before it, or reorder) before cutting content.
+3. Render every page to PNG and **look at them**: tables inside their column, no orphaned heading, no bullet split across the front/back page break (give that one bullet `keepLines`), no unparsed markup.
+4. Tune in this order: fix overflows and column gaps → adjust table weights → cut low-value items (never compress wording) → line spacing. Stop when every page is full and readable.
+5. Do not deliver on the first render.
 
 ### Step 6: Deliver
 
-- Save `.docx` and `.pdf` next to the source material, plus the build script and any cropped figures in a `cheatsheet_assets/` folder so the sheet can be extended later.
-- Tell the user the page count, the font size, what was synthesized (not just listed), and what is not covered yet.
+- Save `.docx` and `.pdf` next to the source material, plus the build script, `measure.py`, the export script and any cropped figures in a `cheatsheet_assets/` folder.
+- Tell the user the page count, the font size, what was synthesized, what was cut to fit, and what is not covered.
+- Invite them to name any line they cannot understand; rewrite those lines rather than defending them.
 
 ## What "good" looks like
 
 - The first section is a map of the whole course that the slides never gave.
-- A reader can find "what does ImmSrc mean for a B-type" in under five seconds because it is in a table under a heading that says so.
+- A reader who skipped a lecture can still use every line.
+- A reader can find any answer in under five seconds because it sits in a table under a heading that says so.
 - Every ⚠ line is a mistake the user would otherwise make in the exam.
-- Nothing is on the sheet that the user would skim past.
+- Nothing is on the sheet that the user would skim past, and nothing the instructor flagged is missing.
 
 ## Reference files
 
-- `references/build-template.js` — complete, runnable docx-js build script; copy and fill in content
-- `references/layout-spec.md` — page geometry, fonts, sizes, colours, Word COM / LibreOffice export, page-count tuning
-- `references/extraction-prompts.md` — how to turn slides into synthesized content; keep / cut lists
+- `references/build-template.js` — complete, runnable docx-js build script (Latin or CJK mode); copy and fill in content
+- `references/measure.py` — page count and per-column fill of the exported PDF, optional page PNGs
+- `references/layout-spec.md` — geometry, fonts, CJK settings, tables, export, page-count tuning
+- `references/extraction-prompts.md` — synthesis moves, keep / cut lists, readability check
 - `references/comparison-tables.md` — when and how to use tables
 - `references/formula-handling.md` — Word-native OMML math for formula-heavy courses
-- `references/compression-tactics.md` — what to do when content genuinely exceeds an enforced page limit
+- `references/compression-tactics.md` — what to cut, in which order, when a page limit is enforced
 
 ## Dependencies
 
-- `docx` npm package (v9+)
-- Python with `pymupdf` and `Pillow` for slide text / figure extraction
+- `docx` npm package (v9+; its bundled `jszip` is used for post-processing)
+- Python with `pymupdf` and `Pillow`
 - `pdftotext` (poppler) optional
 - PDF export: Microsoft Word (via COM on Windows) or LibreOffice
