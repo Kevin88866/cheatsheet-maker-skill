@@ -10,6 +10,8 @@ A Claude Code skill that turns lecture slides, notes and homework into a print-r
 - **Instructor-flagged topics are kept in full**: reads announcements, forum answers and the schedule to find what will be tested (e.g. an intro-lecture history timeline)
 - **Synthesizes instead of transcribing**: merges scattered concepts, turns "unlike X…" remarks into comparison tables
 - **Typography hierarchy**: coloured chapter bars, sub-headings, sans body, monospace for code, bold key terms, highlighted ⚠ exam-trap lines
+- **No filler**: no title banner, exam rules, course map or beginner basics; the sheet opens straight into content
+- **Complete formula coverage**: every slide formula, read from the instructor's annotated decks where they exist, including chapters marked "not a focus"
 - **No worked examples** unless you ask for them
 - **Chinese mode** (`CJK=1`): Chinese body with technical terms kept in English, DengXian / Microsoft YaHei, exact line spacing and half-width punctuation to work around Word's CJK layout quirks
 - **Runnable build template** plus `measure.py`, which reports how full each column is so layout gaps get fixed before content is cut

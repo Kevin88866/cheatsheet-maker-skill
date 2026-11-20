@@ -1,6 +1,6 @@
 ---
 name: cheatsheet-maker
-description: Create exam cheatsheets (crib sheets / reference sheets) as A4 landscape, 3-column Word (.docx) + PDF, built for fast lookup under exam stress. Use this skill whenever the user mentions "cheatsheet", "crib sheet", "reference sheet", "exam cheatsheet", "A4 summary", "study guide", or uploads lecture slides / PDFs / notes and wants them condensed for an exam. Core rules — no title / exam-info / course-map filler, native Word formulas on centred display lines, every line readable without the slides (complete sentences, symbols defined, no cryptic references), synthesized summaries over slide transcription, tables over prose, no invented abbreviations, no worked examples unless asked, instructor-flagged topics never cut, page limit met by cutting low-value items rather than compressing wording, body font never below 8pt.
+description: Create exam cheatsheets (crib sheets / reference sheets) as A4 landscape, 3-column Word (.docx) + PDF, built for fast lookup under exam stress. Use this skill whenever the user mentions "cheatsheet", "crib sheet", "reference sheet", "exam cheatsheet", "A4 summary", "study guide", or uploads lecture slides / PDFs / notes and wants them condensed for an exam. Core rules — no title / exam-info / course-map filler, no beginner basics a revising student already knows, complete formula coverage (including annotated slides and low-priority chapters), native Word formulas on centred display lines, every line readable without the slides (complete sentences, symbols defined, no cryptic references), synthesized summaries over slide transcription, tables over prose, no invented abbreviations, no worked examples unless asked, instructor-flagged topics never cut, page limit met by cutting low-value items rather than compressing wording, body font never below 8pt.
 ---
 
 # Cheatsheet Maker
@@ -14,22 +14,25 @@ Turns lecture slides, notes and homework into a print-ready exam cheatsheet. The
 - User uploads lecture PDFs / PPTs and asks for a summary to print
 - User asks to extend an existing cheatsheet with new chapters
 
-## The eleven rules (read before writing anything)
+## The twelve rules (read before writing anything)
 
 1. **Synthesize, don't transcribe.** The slides are the source, not the outline. When the same idea appears in several places, write **one** unified table or list and say how the pieces connect. Write "principle → consequence → consequence" instead of unrelated facts. Add "how to derive X" notes where a rule exists.
 2. **Readable without the slides.** Every bullet is a complete statement that a reader who never opened the slides understands:
    - define every symbol and acronym on first use ("ξ (slack) = how far point i crosses the margin", "residual = actual − predicted");
    - never refer to an example by its slide or homework label ("the XYZ table", "F02", "the 30-point example") without restating its setup;
    - give the reason after the conclusion ("F1 uses the harmonic mean because it is pulled down by the smaller of P and R").
+
+   "Readable" does not mean "teaches the basics". The reader is a student who attended the course and is revising: define the symbols of a formula, but do not explain what a histogram, a pixel or a gray level is, how much storage an image needs, or what sampling means. Those lines go first.
 3. **Never compress wording to fit.** When the sheet is too long, **cut a whole low-value item**, not letters from every item. Telegraphic fragments ("C 大 → 调小 C", "0–1 在 margin 内") look efficient and are unreadable under stress. See `references/compression-tactics.md` for what to cut first.
 4. **No invented abbreviations.** Use the course's own names (ISA, CPI, SVM, ROC) and spell everything else out.
 5. **Tables for anything with two or more dimensions.** Comparisons, encodings, "when to use which", metric definitions, timelines. Prose is for a single line of reasoning only.
 6. **Typography hierarchy, several fonts.** Coloured chapter bars, coloured underlined sub-headings, sans body, monospace for code / mnemonics, bold key term in each bullet, highlighted ⚠ line for exam traps.
 7. **No worked examples by default.** Keep the rule, the procedure and the trap; drop the numbers. This includes "answers to check against", homework answers and numeric walk-throughs of class examples. Exceptions: the user asks for them, or the instructor says specific in-class calculations are examinable — then give question, answer and a one-line reason in a table, nothing more.
 8. **Instructor-flagged topics are never "low value".** If the instructor says a topic will be tested (e.g. "the introduction weeks may be tested"), cover it fully even if it looks like trivia: every year and name in a history timeline (as a table), every definition, every ethics point. Search announcements, forum answers and schedules for these statements before planning.
-9. **Page count is driven by content and the user's limit; the font never goes below 8pt.** If an exam limit is known ("one sheet, double-sided" = 2 pages), fill exactly that. When space frees up (for example after the user asks to drop examples), **first restore knowledge points that were cut earlier**; enlarge the font or line spacing only if the user wants that or nothing worth adding is left.
+9. **Page count is driven by content and the user's limit; the font never goes below 8pt.** If an exam limit is known ("one sheet, double-sided" = 2 pages), fill exactly that. When space frees up (for example after the user asks to drop examples or basics), **first add the formulas still missing from the high-weight chapters, then restore knowledge points that were cut earlier**; enlarge the font or line spacing only if the user wants that or nothing worth adding is left.
 10. **Language follows the user.** A user writing in Chinese usually wants Chinese body text with technical terms in English (model names, metric names, standard terms the exam paper prints in English); confirm once if a global instruction says otherwise, then remember it. Chinese text needs the CJK layout settings in `references/layout-spec.md`.
 11. **Formulas are native Word math, displayed and centred.** A formula with a fraction, root, sum or matrix, a chain of equalities, or two or more related formulas never sits mid-sentence: write a short label line ending in a colon, then each formula on its own **centred display line** (`<m:oMathPara>` with `m:jc="center"`). One idea per bullet: split cases (① ② ③), corollaries and "known X → find Y" variants into separate bullets instead of one long line. Inline math is only for a single short symbol or expression inside a sentence. See `references/formula-handling.md`.
+12. **Formula coverage is complete.** Every formula on the slides goes on the sheet: definitions, descriptors (e.g. smoothness R = 1 − 1/(1 + σ²), GLCM descriptors), error and fidelity measures, alternative forms of the same filter, expansions the lecturer wrote out (e.g. central moments up to order 3). This holds for chapters the instructor called "not a focus" too: a lower priority shrinks the prose around a formula, never the formula. Only slides the instructor marks as not examinable (e.g. a "Supplement (not covered in final exam)" section) are skipped. Before delivering, go through the slides deck by deck and check every formula against the sheet.
 
 ## Workflow
 
@@ -44,8 +47,10 @@ Ask what you could not find in one message. Do not ask again later.
 ### Step 2: Read everything, then plan the structure yourself
 
 1. Extract slide text (`pdftotext -layout`, or pymupdf). Formulas are often images: render those pages and look at them. Read all of it before writing.
+   - When an **annotated** version of a deck exists (instructor's handwriting, highlights, circled formulas), it is the primary source. The handwriting is not in the text layer, so render those pages as montages and look at them; circled or boxed formulas are exam signals.
+   - Text extraction drops fraction bars and exponents (e.g. `1/(ΔxΔy)` comes out as `ΔxΔy`). Check every formula you copy from extracted text against a rendered page.
 2. Also read homework, in-class activities, marked discussion documents and interactive labs: they show what the instructor actually asks.
-3. Draft the section list **by topic, not by slide order**. **No title banner, no exam-information line and no course-map table**: the user knows the course name, the exam rules and the chapter list, so that space goes to lookup content. When space is left over, either add a short section of exam tools that recur across past papers (calculation shortcuts, inverse formulas, standard minimisation results) or leave it blank for the user's handwritten notes; ask which once.
+3. Draft the section list **by topic, not by slide order**. **No title banner, no exam-information line (duration, open/closed book, marks split, MCQ scoring rules) and no course-map table**: the user knows the course name, the exam rules and the chapter list, so that space goes to lookup content. The same goes for beginner basics (rule 2). When space is left over, either add a short section of exam tools that recur across past papers (calculation shortcuts, inverse formulas, standard minimisation results) or leave it blank for the user's handwritten notes; ask which once.
 4. For each section decide the form first: table, bullet list, formula, or figure. See `references/extraction-prompts.md`.
 5. Mark the exam traps (lecturer's "note", easy-to-confuse pairs, conflicting conventions between slide decks) — these become ⚠ lines.
 6. Verify every number you keep by recomputing it (a short script), not by copying it from a slide.
@@ -71,9 +76,10 @@ Non-negotiable technical points (each one cost a rebuild in practice):
 
 1. Build, export to PDF (Word COM on Windows, LibreOffice elsewhere), get the page count.
 2. Run `references/measure.py <pdf>`: it prints where each column's text ends. A column ending far above the bottom means a heading + table block jumped to the next column; fix it (let long tables split, shorten a line just before it, or reorder) before cutting content.
-3. Render every page to PNG and **look at them**: tables inside their column, no orphaned heading, no bullet split across the front/back page break (give that one bullet `keepLines`), no unparsed markup, no formula wrapping across lines mid-expression, no formula chain squeezed inline into a sentence (move it to a centred display line).
-4. Tune in this order: fix overflows and column gaps → adjust table weights → cut low-value items (never compress wording) → line spacing. Stop when every page is full and readable.
-5. Do not deliver on the first render.
+3. Grep the content for nested markup, which renders wrongly: `grep -nE '\^\{[^}]*_\{' content.js` (a subscript inside a superscript). Write such exponents flat, e.g. `e^{−ln2·(ω/ω0)²}`, `e^{+j2π(u0·x + v0·y)}`.
+4. Render every page to PNG and **look at them**: tables inside their column, no orphaned heading, no bullet split across the front/back page break (give that one bullet `keepLines`), no unparsed markup, no formula wrapping across lines mid-expression, no formula chain squeezed inline into a sentence (move it to a centred display line).
+5. Tune in this order: fix overflows and column gaps → adjust table weights → cut low-value items (never compress wording) → line spacing. Stop when every page is full and readable.
+6. Do not deliver on the first render.
 
 ### Step 6: Deliver
 
@@ -83,7 +89,8 @@ Non-negotiable technical points (each one cost a rebuild in practice):
 
 ## What "good" looks like
 
-- The sheet opens straight into content: no title, no exam rules, no course map.
+- The sheet opens straight into content: no title, no exam rules, no course map, no "what is a histogram".
+- Every formula the slides give is on the sheet, including the low-priority chapters.
 - Every non-trivial formula sits centred on its own line under a short label, so the eye finds it without reading the sentence.
 - A reader who skipped a lecture can still use every line.
 - A reader can find any answer in under five seconds because it sits in a table under a heading that says so.

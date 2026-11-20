@@ -16,13 +16,15 @@ Use this file when the exam enforces a page limit ("one A4 sheet, double-sided" 
 
 ### 2. Cut, lowest value first
 
-1. Worked examples and "answers to check against" (homework answers, numeric walk-throughs). Keep the procedure.
-2. Items that repeat a table or heading.
-3. Theory the course only mentions (bounds, proofs, derivations) — keep the one-line intuition.
-4. Tool and library trivia, unless the exam asks about code.
-5. Anything belonging to a different test.
+1. Beginner basics and exam logistics (what a histogram is, storage size, exam rules, course map). They should not be there in the first place.
+2. Worked examples and "answers to check against" (homework answers, numeric walk-throughs). Keep the procedure.
+3. Items that repeat a table or heading.
+4. Theory the course only mentions (bounds, proofs, derivations) — keep the one-line intuition.
+5. Tool and library trivia, unless the exam asks about code.
+6. Anything belonging to a different test.
+7. Prose in low-priority chapters. Their formulas stay: cut the explanation around a formula before the formula itself.
 
-**Never cut** topics the instructor flagged as examinable (e.g. "the intro weeks may be tested": history timeline, definitions, ethics), exam traps (⚠ lines), or formulas needed for calculation questions.
+**Never cut** topics the instructor flagged as examinable (e.g. "the intro weeks may be tested": history timeline, definitions, ethics), exam traps (⚠ lines), formulas needed for calculation questions, or any formula the slides give.
 
 ### 3. Layout, with floors
 
@@ -36,7 +38,7 @@ If it still does not fit, ask the user which chapter or item is lowest priority.
 
 ## When space frees up later
 
-If the user removes something (e.g. "drop the examples"), restore the knowledge points cut earlier before enlarging the font. Enlarge only if the user asks or nothing worth adding remains.
+If the user removes something (e.g. "drop the examples" or "drop the basics"), first add formulas still missing from the high-weight chapters, then restore the knowledge points cut earlier, before enlarging the font. Enlarge only if the user asks or nothing worth adding remains.
 
 ## Never
 
