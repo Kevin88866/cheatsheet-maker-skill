@@ -8,7 +8,7 @@ A Claude Code skill that turns lecture slides, notes and homework into a print-r
 - **Readable without the slides**: every line is a complete sentence, symbols are defined on first use, no references to "the XYZ example" or slide codes, reasons given after conclusions
 - **Fits the limit by cutting, not compressing**: low-value items (worked examples, theory the course only mentions, tool trivia) go first; wording is never squeezed into fragments
 - **Instructor-flagged topics are kept in full**: reads announcements, forum answers and the schedule to find what will be tested (e.g. an intro-lecture history timeline)
-- **Synthesizes instead of transcribing**: opens with a one-table map of the course, merges scattered concepts, turns "unlike X…" remarks into comparison tables
+- **Synthesizes instead of transcribing**: merges scattered concepts, turns "unlike X…" remarks into comparison tables
 - **Typography hierarchy**: coloured chapter bars, sub-headings, sans body, monospace for code, bold key terms, highlighted ⚠ exam-trap lines
 - **No worked examples** unless you ask for them
 - **Chinese mode** (`CJK=1`): Chinese body with technical terms kept in English, DengXian / Microsoft YaHei, exact line spacing and half-width punctuation to work around Word's CJK layout quirks

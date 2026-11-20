@@ -17,7 +17,6 @@ Extract every source file to text and read all of it before drafting. Formulas a
 | **Rule instead of table** | a table follows from a few rules | "how to derive it" bullets |
 | **Side-by-side** | the course keeps contrasting two things | one comparison table |
 | **Record the trap** | the lecturer says "note", or two slide decks use different conventions (e.g. confusion-matrix row order) | a ⚠ line |
-| **Map the course** | always | an opening overview table of every model / chapter |
 | **Explain the why** | a conclusion without its reason | add the reason in the same sentence |
 
 ## Keep
@@ -57,7 +56,8 @@ If the user wants Chinese, the body is Chinese and these stay English: model and
 
 ## Self-audit before generating
 
-- [ ] Is there an opening map of the whole course?
+- [ ] Does the sheet start straight with content (no title, exam-info line or course-map table)?
+- [ ] Is every formula chain or multi-formula statement on its own centred display line under a label, not inline?
 - [ ] Could someone who skipped the lectures understand every line? (symbols defined, no slide labels, reasons given)
 - [ ] Is any line a telegraphic fragment? Rewrite it as a sentence.
 - [ ] Did every scattered comparison become a table?

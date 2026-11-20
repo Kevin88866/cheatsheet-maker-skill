@@ -8,7 +8,6 @@ Tables are the highest-lookup-speed layout on a cheatsheet. Use them for anythin
 - Variants of one thing: instruction formats, load/store widths, IEEE precisions, distributions.
 - Encodings and control signals: opcode / funct3 tables, control truth tables, flag semantics.
 - "When is which rule right": signed vs unsigned overflow, sign-extend vs zero-extend, caller- vs callee-saved.
-- Overviews: chapter × layer × what-it-produces maps.
 
 ## Shapes
 
@@ -18,7 +17,6 @@ Tables are the highest-lookup-speed layout on a cheatsheet. Use them for anythin
 
 **Rule table** — condition | formula | one-line reason. The reason column is what makes it memorable.
 
-**Overview map** — layer / stage | what it is | who works at it / artefact | where in the course.
 
 ## Using the template helper
 

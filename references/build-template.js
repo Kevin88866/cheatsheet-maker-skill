@@ -170,21 +170,15 @@ function img(file, widthCm, heightCm) {
 const C = [];
 const add = (...x) => x.forEach(i => Array.isArray(i) ? C.push(...i) : C.push(i));
 
-C.push(new Paragraph({ spacing: { after: 30 }, children: [
-  new TextRun({ text: 'COURSE Test 1 Cheatsheet', bold: true, size: BODY + 8, font: fHead, color: '1F4E79' }),
-  new TextRun({ text: '  Topic A · Topic B · Topic C', size: BODY, font: fLat, color: '595959' }),
-] }));
-
-add(h1(1, 'Map: every model / chapter side by side'));
-add(table(['Model', 'Decision boundary', 'Overfits when → fix'], [
-  ['Decision tree', 'axis-parallel rectangles (nonlinear)', 'tree too deep → limit depth, prune'],
-], [1.6, 2.4, 2.9], { zebra: true }));
-
-add(h1(2, 'First topic'));
+// No title banner, exam-info line or course-map table: start directly with content.
+add(h1(1, 'First topic'));
 add(h2('Key formula'));
 add(formula('**IG = H(parent) − Σ (|S_{v}| ÷ |S|) × H(S_{v})**'));
 add(b('**Term**: one complete sentence that says what it is and why it matters.'));
 add(warn('Exam trap written as a full sentence.'));
+add(table(['Model', 'Decision boundary', 'Overfits when → fix'], [
+  ['Decision tree', 'axis-parallel rectangles (nonlinear)', 'tree too deep → limit depth, prune'],
+], [1.6, 2.4, 2.9], { zebra: true }));
 
 // =====================================================================
 const page = { size: { width: 11906, height: 16838, orientation: PageOrientation.LANDSCAPE },
